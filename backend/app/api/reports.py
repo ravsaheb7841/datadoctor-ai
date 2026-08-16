@@ -11,7 +11,11 @@ import io
 router = APIRouter()
 
 @router.post("/{dataset_id}/report")
-async def create_report(dataset_id: str, current_user: dict = Depends(get_current_user)):
+async def create_report(
+    dataset_id: str, 
+    report_type: str = "before",
+    current_user: dict = Depends(get_current_user)
+):
     db = await get_db()
     
     dataset = await db.datasets.find_one({
@@ -21,11 +25,19 @@ async def create_report(dataset_id: str, current_user: dict = Depends(get_curren
     if not dataset:
         raise HTTPException(status_code=404, detail="Dataset not found")
     
-    report = await generate_report(dataset_id, db)
-    return report
+    try:
+        file_path = await generate_report(dataset_id, db, report_type, "pdf")
+        return {"file_path": file_path, "report_type": report_type}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to generate report: {str(e)}")
 
 @router.get("/{dataset_id}/report")
-async def get_report(dataset_id: str, format: str = "pdf", current_user: dict = Depends(get_current_user)):
+async def get_report(
+    dataset_id: str, 
+    format: str = "pdf",
+    report_type: str = "before",
+    current_user: dict = Depends(get_current_user)
+):
     db = await get_db()
     
     dataset = await db.datasets.find_one({
@@ -35,27 +47,30 @@ async def get_report(dataset_id: str, format: str = "pdf", current_user: dict = 
     if not dataset:
         raise HTTPException(status_code=404, detail="Dataset not found")
     
-    file_path = await get_download_path(dataset_id, format, db)
-    
-    if not os.path.exists(file_path):
-        # Generate report first
-        await generate_report(dataset_id, db, format)
-        file_path = await get_download_path(dataset_id, format, db)
-    
-    if not os.path.exists(file_path):
-        raise HTTPException(status_code=404, detail="Report file not found")
-    
-    return FileResponse(
-        file_path, 
-        filename=f"report_{dataset_id}.{format}",
-        media_type='application/octet-stream'
-    )
+    try:
+        file_path = await generate_report(dataset_id, db, report_type, format)
+        
+        if not os.path.exists(file_path):
+            raise HTTPException(status_code=404, detail="Report file not found")
+        
+        # Get clean filename
+        import re
+        dataset_name = dataset.get('filename', 'dataset')
+        sanitized = re.sub(r'[^a-zA-Z0-9_-]', '_', dataset_name.replace('.csv', '').replace('.xlsx', ''))
+        filename = f'datadoctor_{sanitized}_{report_type}_cleaning.pdf'
+        
+        return FileResponse(
+            file_path,
+            filename=filename,
+            media_type='application/pdf'
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to generate report: {str(e)}")
 
 @router.get("/{dataset_id}/download")
 async def download_cleaned_dataset(dataset_id: str, current_user: dict = Depends(get_current_user)):
     db = await get_db()
     
-    # Verify ownership
     dataset = await db.datasets.find_one({
         "_id": ObjectId(dataset_id),
         "user_id": current_user["id"]
@@ -63,47 +78,35 @@ async def download_cleaned_dataset(dataset_id: str, current_user: dict = Depends
     if not dataset:
         raise HTTPException(status_code=404, detail="Dataset not found")
     
-    # Load the cleaned dataset
     file_path = f"uploads/{dataset_id}.pkl"
     if not os.path.exists(file_path):
         raise HTTPException(status_code=404, detail="Dataset file not found")
     
     try:
         df = pd.read_pickle(file_path)
-        
-        # Get the original filename and extension
         original_filename = dataset.get('filename', 'dataset')
         base_name = os.path.splitext(original_filename)[0]
         
-        # Create CSV in memory
         csv_buffer = io.StringIO()
         df.to_csv(csv_buffer, index=False)
         csv_content = csv_buffer.getvalue()
         
-        # Return as streaming response
         return StreamingResponse(
             iter([csv_content]),
             media_type='text/csv',
-            headers={
-                'Content-Disposition': f'attachment; filename=cleaned_{base_name}.csv'
-            }
+            headers={'Content-Disposition': f'attachment; filename=cleaned_{base_name}.csv'}
         )
-        
     except Exception as e:
-        raise HTTPException(
-            status_code=500,
-            detail=f"Failed to download dataset: {str(e)}"
-        )
+        raise HTTPException(status_code=500, detail=f"Failed to download: {str(e)}")
 
 @router.get("/{dataset_id}/download/{format}")
 async def download_dataset_in_format(
-    dataset_id: str, 
+    dataset_id: str,
     format: str,
     current_user: dict = Depends(get_current_user)
 ):
     db = await get_db()
     
-    # Verify ownership
     dataset = await db.datasets.find_one({
         "_id": ObjectId(dataset_id),
         "user_id": current_user["id"]
@@ -111,7 +114,6 @@ async def download_dataset_in_format(
     if not dataset:
         raise HTTPException(status_code=404, detail="Dataset not found")
     
-    # Load the cleaned dataset
     file_path = f"uploads/{dataset_id}.pkl"
     if not os.path.exists(file_path):
         raise HTTPException(status_code=404, detail="Dataset file not found")
@@ -153,9 +155,15 @@ async def download_dataset_in_format(
                 media_type=media_type,
                 headers={'Content-Disposition': f'attachment; filename={filename}'}
             )
-            
     except Exception as e:
-        raise HTTPException(
-            status_code=500,
-            detail=f"Failed to download dataset: {str(e)}"
-        )
+        raise HTTPException(status_code=500, detail=f"Failed to download: {str(e)}")
+
+@router.get("/{dataset_id}/cleaning-log")
+async def get_cleaning_log(dataset_id: str, current_user: dict = Depends(get_current_user)):
+    db = await get_db()
+    
+    operations = await db.cleaning_operations.find(
+        {"dataset_id": dataset_id, "error": {"$exists": False}}
+    ).sort("timestamp", -1).to_list(None)
+    
+    return {"operations": operations, "total": len(operations)}

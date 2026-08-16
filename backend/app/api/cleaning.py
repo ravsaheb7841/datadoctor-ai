@@ -23,7 +23,6 @@ async def clean_dataset(
 ):
     db = await get_db()
     
-    # Verify ownership
     dataset = await db.datasets.find_one({
         "_id": ObjectId(dataset_id),
         "user_id": current_user["id"]
@@ -66,4 +65,9 @@ async def get_cleaning_history(dataset_id: str, current_user: dict = Depends(get
         raise HTTPException(status_code=404, detail="Dataset not found")
     
     operations = await get_cleaning_log(dataset_id, db)
-    return {"operations": operations}
+    
+    # Return in the format frontend expects
+    return {
+        "operations": operations,
+        "total": len(operations)
+    }
