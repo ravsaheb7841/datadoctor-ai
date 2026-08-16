@@ -1,7 +1,14 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../App';
-import { Database, Download, Stethoscope, TrendingUp, FileText, Rows3, Columns3, HeartPulse, AlertTriangle } from 'lucide-react';
+import { 
+  Database, Download, Stethoscope, TrendingUp, FileText, 
+  Rows3, Columns3, HeartPulse, AlertTriangle, Wand2, Bot,
+  ShieldCheck, MessageSquare
+} from 'lucide-react';
+import Breadcrumbs from '../components/Breadcrumbs';
+import PageHeader from '../components/PageHeader';
+import QuickActionCard from '../components/QuickActionCard';
 
 const DatasetOverview = () => {
   const { id } = useParams();
@@ -70,49 +77,81 @@ const DatasetOverview = () => {
   const healthScore = dataset.health_score || 0;
   const healthColor = healthScore >= 80 ? 'text-green-600' : healthScore >= 60 ? 'text-yellow-600' : 'text-red-600';
 
+  const quickActions = [
+    {
+      icon: Wand2,
+      title: 'Clean Data',
+      description: 'Review and fix detected data quality issues',
+      onClick: () => navigate(`/datasets/${id}/cleaning`),
+      color: 'green'
+    },
+    {
+      icon: TrendingUp,
+      title: 'Explore EDA',
+      description: 'Understand distributions, relationships and trends',
+      onClick: () => navigate(`/datasets/${id}/eda`),
+      color: 'blue'
+    },
+    {
+      icon: ShieldCheck,
+      title: 'Data Quality',
+      description: 'View detected issues and health score',
+      onClick: () => navigate(`/datasets/${id}/doctor`),
+      color: 'orange'
+    },
+    {
+      icon: Bot,
+      title: 'AI Insights',
+      description: 'Get AI-powered analysis and recommendations',
+      onClick: () => navigate(`/datasets/${id}/insights`),
+      color: 'purple'
+    },
+    {
+      icon: MessageSquare,
+      title: 'Data Chat',
+      description: 'Ask questions about your data in natural language',
+      onClick: () => navigate(`/datasets/${id}/chat`),
+      color: 'indigo'
+    },
+    {
+      icon: FileText,
+      title: 'Generate Report',
+      description: 'Create a professional PDF report',
+      onClick: () => navigate(`/datasets/${id}/reports`),
+      color: 'red'
+    },
+  ];
+
   return (
     <div>
-      <div className="flex justify-between items-start mb-6">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{dataset.filename}</h1>
-          <p className="text-gray-500 dark:text-gray-400 mt-1">
-            Uploaded on {new Date(dataset.created_at).toLocaleDateString()}
-          </p>
-        </div>
-        <div className="flex space-x-3">
-          <button
-            onClick={handleDownload}
-            disabled={downloading}
-            className="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700 disabled:opacity-50 transition-colors"
-          >
-            <Download className="w-4 h-4 mr-2" />
-            {downloading ? 'Downloading...' : 'Download'}
-          </button>
-          <button
-            onClick={() => navigate(`/datasets/${id}/doctor`)}
-            className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 transition-colors"
-          >
-            <Stethoscope className="w-4 h-4 mr-2" />
-            Data Doctor
-          </button>
-          <button
-            onClick={() => navigate(`/datasets/${id}/eda`)}
-            className="inline-flex items-center px-4 py-2 bg-purple-600 text-white rounded-lg text-sm hover:bg-purple-700 transition-colors"
-          >
-            <TrendingUp className="w-4 h-4 mr-2" />
-            EDA
-          </button>
-          <button
-            onClick={() => navigate(`/datasets/${id}/reports`)}
-            className="inline-flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm hover:bg-indigo-700 transition-colors"
-          >
-            <FileText className="w-4 h-4 mr-2" />
-            Reports
-          </button>
-        </div>
-      </div>
+      <Breadcrumbs
+        items={[
+          { label: 'Datasets', to: '/datasets' },
+          { label: dataset.filename },
+          { label: 'Overview' }
+        ]}
+      />
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+      <PageHeader
+        icon={Database}
+        title={dataset.filename}
+        description={`Uploaded on ${new Date(dataset.created_at).toLocaleDateString()}`}
+        actions={
+          <>
+            <button
+              onClick={handleDownload}
+              disabled={downloading}
+              className="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700 disabled:opacity-50 transition-colors"
+            >
+              <Download className="w-4 h-4 mr-2" />
+              {downloading ? 'Downloading...' : 'Download'}
+            </button>
+          </>
+        }
+      />
+
+      {/* Stats Cards */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
         <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4">
           <div className="flex items-center mb-2">
             <Rows3 className="w-4 h-4 text-blue-600 mr-2" />
@@ -143,6 +182,19 @@ const DatasetOverview = () => {
         </div>
       </div>
 
+      {/* Quick Actions */}
+      <div className="mb-8">
+        <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+          What would you like to do?
+        </h2>
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {quickActions.map((action, idx) => (
+            <QuickActionCard key={idx} {...action} />
+          ))}
+        </div>
+      </div>
+
+      {/* Data Preview */}
       <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
         <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Data Preview</h2>
         <div className="overflow-x-auto">
@@ -156,7 +208,7 @@ const DatasetOverview = () => {
               </tr>
             </thead>
             <tbody>
-              {dataset.data_preview?.slice(0, 20).map((row, index) => (
+              {dataset.data_preview?.slice(0, 10).map((row, index) => (
                 <tr key={index} className="border-b border-gray-100 dark:border-gray-700">
                   <td className="px-4 py-2 text-sm text-gray-400">{index + 1}</td>
                   {dataset.column_names?.map((col) => (
