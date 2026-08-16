@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import { AuthContext } from '../App';
 import { 
@@ -42,14 +42,9 @@ const CleaningCenter = () => {
   const [downloading, setDownloading] = useState(false);
   const [selectedOperations, setSelectedOperations] = useState({});
   const [userOverrides, setUserOverrides] = useState({});
+  const [refreshKey, setRefreshKey] = useState(0);
 
-  useEffect(() => {
-    fetchData();
-    fetchColumnTypes();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id]);
-
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     setLoading(true);
     try {
       const [issuesRes, logRes] = await Promise.all([
@@ -61,8 +56,15 @@ const CleaningCenter = () => {
         })
       ]);
       
+      if (!issuesRes.ok) {
+        throw new Error(`Failed to fetch issues: ${issuesRes.status}`);
+      }
+      
       const issuesData = await issuesRes.json();
       const logData = await logRes.json();
+      
+      console.log('Fetched issues:', issuesData.issues?.length || 0);
+      console.log('Fetched cleaning log:', logData.operations?.length || 0);
       
       setIssues(issuesData.issues || []);
       setCleaningLog(logData.operations || []);
@@ -72,9 +74,9 @@ const CleaningCenter = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [id, token]);
 
-  const fetchColumnTypes = async () => {
+  const fetchColumnTypes = useCallback(async () => {
     try {
       const response = await fetch(`http://localhost:8000/api/datasets/${id}/column-types`, {
         headers: { 'Authorization': `Bearer ${token}` }
@@ -95,7 +97,12 @@ const CleaningCenter = () => {
     } catch (error) {
       console.error('Failed to fetch column types:', error);
     }
-  };
+  }, [id, token]);
+
+  useEffect(() => {
+    fetchData();
+    fetchColumnTypes();
+  }, [fetchData, fetchColumnTypes, refreshKey]);
 
   const getColumnType = (columnName) => {
     if (userOverrides[columnName]) {
@@ -180,6 +187,8 @@ const CleaningCenter = () => {
     }
     
     try {
+      console.log('Applying cleaning operation:', operation);
+      
       const response = await fetch(`http://localhost:8000/api/datasets/${id}/clean`, {
         method: 'POST',
         headers: {
@@ -194,15 +203,12 @@ const CleaningCenter = () => {
       if (response.ok) {
         setBeforeAfter(data);
         setMessage('Cleaning operation applied successfully');
-        setIssues(prevIssues => prevIssues.filter((_, i) => i !== index));
         
-        const newLogEntry = {
-          operation: operation.type,
-          column: operation.column,
-          method: operation.method,
-          timestamp: new Date().toISOString(),
-        };
-        setCleaningLog(prevLog => [newLogEntry, ...prevLog]);
+        // Force refetch from backend
+        setRefreshKey(prev => prev + 1);
+        
+        // Also immediately refetch
+        await fetchData();
       } else {
         setError(data.detail || 'Cleaning operation failed');
       }
@@ -245,7 +251,7 @@ const CleaningCenter = () => {
     return (
       <div className="flex items-center justify-center py-12">
         <div className="flex items-center space-x-3">
-          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary-600"></div>
+          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
           <span className="text-gray-500">Loading cleaning center...</span>
         </div>
       </div>
@@ -300,37 +306,13 @@ const CleaningCenter = () => {
         </div>
       )}
 
-      {beforeAfter && (
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 mb-6">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Before & After</h2>
-          <div className="grid grid-cols-3 gap-4">
-            <div className="text-center">
-              <div className="text-sm text-gray-500">Rows</div>
-              <div className="text-lg font-bold text-gray-900 dark:text-white">
-                {beforeAfter.before?.rows?.toLocaleString()} to {beforeAfter.after?.rows?.toLocaleString()}
-              </div>
-            </div>
-            <div className="text-center">
-              <div className="text-sm text-gray-500">Missing Values</div>
-              <div className="text-lg font-bold text-gray-900 dark:text-white">
-                {beforeAfter.before?.missing?.toLocaleString()} to {beforeAfter.after?.missing?.toLocaleString()}
-              </div>
-            </div>
-            <div className="text-center">
-              <div className="text-sm text-gray-500">Health Score</div>
-              <div className="text-lg font-bold text-green-600">{beforeAfter.health_score}/100</div>
-            </div>
-          </div>
-        </div>
-      )}
-
       <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 mb-6">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
             Data Quality Issues ({issues.length})
           </h2>
           <button
-            onClick={fetchData}
+            onClick={() => setRefreshKey(prev => prev + 1)}
             className="inline-flex items-center px-3 py-1.5 text-sm text-gray-500 hover:text-gray-700 transition-colors"
           >
             <RefreshCw className="w-4 h-4 mr-1" />
@@ -340,11 +322,11 @@ const CleaningCenter = () => {
         
         {issues.length === 0 ? (
           <div className="text-center py-12">
-            <div className="mx-auto w-16 h-16 bg-green-50 rounded-full flex items-center justify-center mb-4">
+            <div className="mx-auto w-16 h-16 bg-green-50 dark:bg-green-900 rounded-full flex items-center justify-center mb-4">
               <CheckCircle2 className="w-8 h-8 text-green-500" />
             </div>
-            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">No issues to clean</h3>
-            <p className="text-gray-500">Your data looks clean.</p>
+            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">No Data Quality Issues</h3>
+            <p className="text-gray-500">Your dataset has been successfully cleaned.</p>
           </div>
         ) : (
           <div className="space-y-3">

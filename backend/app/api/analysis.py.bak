@@ -101,10 +101,8 @@ async def get_dataset_issues(
             detail="Dataset not found"
         )
 
-    # Only return active (unresolved) issues
     issues = await db.data_quality_issues.find({
-        "dataset_id": dataset_id,
-        "status": {"$ne": "resolved"}
+        "dataset_id": dataset_id
     }).to_list(None)
 
     for issue in issues:
@@ -238,10 +236,8 @@ async def diagnose_dataset(
         "dataset_id": dataset_id
     })
 
-    # Only return active (unresolved) issues
     issues = await db.data_quality_issues.find({
-        "dataset_id": dataset_id,
-        "status": {"$ne": "resolved"}
+        "dataset_id": dataset_id
     }).to_list(None)
 
     diagnosis = await generate_diagnosis(

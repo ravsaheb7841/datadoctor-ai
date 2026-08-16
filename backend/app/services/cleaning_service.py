@@ -197,6 +197,55 @@ async def apply_cleaning_operation(dataset_id, operation, db):
         
         df.to_pickle(file_path)
         
+        # MARK CORRESPONDING ISSUES AS RESOLVED
+        resolved_filter = {"dataset_id": dataset_id}
+
+        if op_type == "fill_missing" and column and column != "all":
+            resolved_filter["column"] = column
+            resolved_filter["type"] = "missing_values"
+
+        elif op_type == "remove_duplicates":
+            resolved_filter["type"] = {"$in": ["duplicates", "duplicate_ids"]}
+            if column and column != "all":
+                resolved_filter["column"] = column
+
+        elif op_type == "normalize_categories" and column:
+            resolved_filter["column"] = column
+            resolved_filter["type"] = "category_inconsistency"
+
+        elif op_type in ["cap_outliers", "remove_outliers"] and column:
+            resolved_filter["column"] = column
+            resolved_filter["type"] = "outliers"
+
+        elif op_type == "drop_column" and column:
+            resolved_filter["column"] = column
+            resolved_filter["type"] = {"$in": ["constant_column", "near_constant_column"]}
+
+        elif op_type == "convert_type" and column:
+            resolved_filter["column"] = column
+            resolved_filter["type"] = "type_mismatch"
+
+        matching_issues = await db.data_quality_issues.find(
+            resolved_filter
+        ).to_list(None)
+
+        if matching_issues:
+            update_result = await db.data_quality_issues.update_many(
+                resolved_filter,
+                {
+                    "$set": {
+                        "status": "resolved",
+                        "resolved_at": datetime.utcnow()
+                    }
+                }
+            )
+
+            print(
+                f"Marked {update_result.modified_count} issues as resolved"
+            )
+
+
+        
         preview_data = convert_numpy_types(df.head(100).to_dict('records'))
         
         await db.datasets.update_one(

@@ -92,9 +92,11 @@ async def process_uploaded_dataset(db, dataset_id, file_path, filename, user_id)
     issues = await detect_quality_issues(df, profile)
     issues = convert_numpy_types(issues)
     
-    # Add dataset_id to each issue
+    # Add dataset_id and status to each issue
     for issue in issues:
         issue['dataset_id'] = dataset_id
+        issue['status'] = 'active'
+        issue['created_at'] = datetime.utcnow()
     
     if issues:
         await db.data_quality_issues.insert_many(issues)
@@ -222,9 +224,11 @@ async def create_demo_dataset(db, user_id):
     issues = await detect_quality_issues(df, profile)
     issues = convert_numpy_types(issues)
     
-    # CRITICAL FIX: Add dataset_id to each issue explicitly
+    # CRITICAL FIX: Add dataset_id and status to each issue explicitly
     for issue in issues:
         issue['dataset_id'] = dataset_id
+        issue['status'] = 'active'
+        issue['created_at'] = datetime.utcnow()
     
     if issues:
         # Insert issues one by one to verify
