@@ -276,16 +276,48 @@ def detect_near_constant_columns(profile):
     return issues
 
 def detect_high_cardinality(df, profile):
+    """Detect high cardinality - informational only, no cleaning required.
+    High cardinality is NOT a data quality issue for identifier columns."""
+    from app.services.column_type_service import column_type_service
+
     issues = []
+
     for col_profile in profile["column_profiles"]:
-        if col_profile["inferred_type"] in ["text", "id_like"] and col_profile["unique_percentage"] > 50:
+        col_name = col_profile["column_name"]
+
+        # Get semantic type
+        try:
+            semantic_type = column_type_service.detect_semantic_type(df, col_name)
+        except Exception:
+            semantic_type = col_profile.get("inferred_type", "other")
+
+        # Identifier columns naturally have high cardinality.
+        # They should NOT be treated as data quality issues.
+        if semantic_type == "identifier":
+            continue
+
+        # Only flag genuinely high-cardinality TEXT columns.
+        if semantic_type == "text" and col_profile["unique_percentage"] > 80:
             issues.append({
                 "type": "high_cardinality",
                 "severity": "info",
-                "column": str(col_profile["column_name"]),
-                "issue": f"Column '{col_profile['column_name']}' has high cardinality",
-                "affected_rows": int(col_profile["total"]),
-                "percentage_affected": 100.0,
-                "recommended_action": "Consider if this column is useful for analysis or if it should be excluded"
+                "column": str(col_name),
+                "issue": (
+                    f"Column '{col_name}' has high cardinality "
+                    f"({col_profile['unique_percentage']}% unique values)"
+                ),
+                "affected_rows": 0,
+                "percentage_affected": 0,
+                "recommended_action": (
+                    "Informational only. High cardinality does not "
+                    "require a cleaning operation."
+                ),
+                "is_informational": True,
+                "unique_count": int(col_profile.get("unique", 0)),
+                "total_count": int(col_profile.get("total", 0)),
+                "cardinality_percentage": float(
+                    col_profile.get("unique_percentage", 0)
+                )
             })
+
     return issues

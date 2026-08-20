@@ -42,6 +42,7 @@ const CleaningCenter = () => {
   const [downloading, setDownloading] = useState(false);
   const [selectedOperations, setSelectedOperations] = useState({});
   const [userOverrides, setUserOverrides] = useState({});
+  const [customValues, setCustomValues] = useState({});
   const [refreshKey, setRefreshKey] = useState(0);
 
   const fetchData = useCallback(async () => {
@@ -172,6 +173,16 @@ const CleaningCenter = () => {
       case 'missing_values':
         operation.type = 'fill_missing';
         operation.method = selectedOp;
+        if (selectedOp === 'custom') {
+          const customVal = customValues[issueKey] || '';
+          if (!customVal) {
+            setError('Please enter a custom value');
+            setCleaning(false);
+            setCleaningIssueId(null);
+            return;
+          }
+          operation.value = customVal;
+        }
         break;
       case 'duplicates':
       case 'duplicate_ids':
@@ -381,48 +392,85 @@ const CleaningCenter = () => {
                         {issue.affected_rows} rows affected ({issue.percentage_affected}%)
                       </p>
                       
-                      <div className="mt-3">
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                          Cleaning Method:
-                        </label>
-                        <select
-                          value={selectedOp}
-                          onChange={(e) => {
-                            setSelectedOperations(prev => ({
-                              ...prev,
-                              [issueKey]: e.target.value
-                            }));
-                          }}
-                          className="w-full md:w-64 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                          disabled={cleaning}
-                        >
-                          {allowedMethods.map(method => (
-                            <option key={method} value={method}>
-                              {METHOD_OPTIONS[method]?.label || method}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
+                      {issue.type !== "high_cardinality" && (
+                        <div className="mt-3">
+                          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                            Cleaning Method:
+                          </label>
+                          <select
+                            value={selectedOp}
+                            onChange={(e) => {
+                              setSelectedOperations(prev => ({
+                                ...prev,
+                                [issueKey]: e.target.value
+                              }));
+                            }}
+                            className="w-full md:w-64 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            disabled={cleaning}
+                          >
+                            {allowedMethods.map(method => (
+                              <option key={method} value={method}>
+                                {METHOD_OPTIONS[method]?.label || method}
+                              </option>
+                            ))}
+                          </select>
+                          
+                          {selectedOp === 'custom' && (
+                            <div className="mt-2">
+                              <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
+                                Enter Custom Value
+                              </label>
+                              <input
+                                type="text"
+                                value={customValues[issueKey] || ''}
+                                onChange={(e) => {
+                                  setCustomValues(prev => ({
+                                    ...prev,
+                                    [issueKey]: e.target.value
+                                  }));
+                                }}
+                                placeholder="Enter value to fill missing data"
+                                className="w-full md:w-64 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                              />
+                            </div>
+                          )}
+                        </div>
+                      )}
+
+                      {issue.type === "high_cardinality" && (
+                        <div className="mt-3 bg-gray-50 dark:bg-gray-700 rounded-lg p-3">
+                          <p className="text-sm text-gray-600 dark:text-gray-400">
+                            Unique Values: {issue.unique_count || issue.unique || "N/A"}
+                            <br />
+                            Cardinality: {issue.cardinality_percentage || issue.percentage_affected || "N/A"}%
+                          </p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+                            High cardinality is informational and does not require a cleaning operation.
+                          </p>
+                        </div>
+                      )}
                     </div>
                     
-                    <button
-                      onClick={() => handleClean(issue, index)}
-                      disabled={cleaning}
-                      className={`ml-4 px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${
-                        cleaningIssueId === index
-                          ? 'bg-gray-400 text-white cursor-not-allowed'
-                          : 'bg-blue-600 text-white hover:bg-blue-700'
-                      }`}
-                    >
-                      {cleaningIssueId === index ? (
-                        <span className="flex items-center">
-                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                          Fixing...
-                        </span>
-                      ) : (
-                        'Fix Issue'
-                      )}
-                    </button>
+                    {issue.type !== "high_cardinality" && (
+                      <button
+                        onClick={() => handleClean(issue, index)}
+                        disabled={cleaning}
+                        className={`ml-4 px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${
+                          cleaningIssueId === index
+                            ? 'bg-gray-400 text-white cursor-not-allowed'
+                            : 'bg-blue-600 text-white hover:bg-blue-700'
+                        }`}
+                      >
+                        {cleaningIssueId === index ? (
+                          <span className="flex items-center">
+                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                            Fixing...
+                          </span>
+                        ) : (
+                          "Fix Issue"
+                        )}
+                      </button>
+                    )}
                   </div>
                 </div>
               );
