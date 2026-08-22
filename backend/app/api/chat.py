@@ -19,6 +19,10 @@ async def chat_with_data(
 ):
     db = await get_db()
     
+    print(f"[CHAT DEBUG] dataset_id: {dataset_id}")
+    print(f"[CHAT DEBUG] received question: {chat_query.query}")
+    print(f"[CHAT DEBUG] question type: {type(chat_query.query)}")
+    
     dataset = await db.datasets.find_one({
         "_id": ObjectId(dataset_id),
         "user_id": current_user["id"]
@@ -26,7 +30,11 @@ async def chat_with_data(
     if not dataset:
         raise HTTPException(status_code=404, detail="Dataset not found")
     
+    print(f"[CHAT DEBUG] dataset: {dataset.get('filename')}")
+    
     response = await process_chat_query(dataset_id, chat_query.query, db)
+    
+    print(f"[CHAT DEBUG] final response answer: {response.get('answer', '')[:200]}")
     return response
 
 @router.get("/{dataset_id}/chat/history")
