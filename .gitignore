@@ -20,7 +20,11 @@ dist/
 
 # Uploads and reports
 uploads/*
+backend/uploads/
+backend/uploads/*
 reports/*
+backend/reports/
+backend/reports/*
 !uploads/.gitkeep
 !reports/.gitkeep
 
