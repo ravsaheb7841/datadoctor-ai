@@ -1,7 +1,7 @@
 import React, { useState, useContext } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { AuthContext } from '../App';
-import { Stethoscope, UserPlus } from 'lucide-react';
+import { Stethoscope, UserPlus, Mail, Lock, User, Sparkles } from 'lucide-react';
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -59,89 +59,124 @@ const Register = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
-      <div className="max-w-md w-full">
+    <div className="min-h-screen relative flex items-center justify-center px-4 py-10 overflow-hidden bg-slate-50 dark:bg-gray-950">
+      <div className="absolute inset-0 bg-gradient-to-br from-violet-50 via-indigo-50 to-blue-50 dark:from-gray-950 dark:via-indigo-950/40 dark:to-gray-950"></div>
+      <div className="absolute top-0 right-0 w-[420px] h-[420px] bg-violet-400/20 rounded-full blur-3xl"></div>
+      <div className="absolute bottom-0 left-0 w-[360px] h-[360px] bg-blue-400/20 rounded-full blur-3xl"></div>
+
+      <div className="relative max-w-md w-full animate-fade-in">
         <div className="text-center mb-8">
-          <div className="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center mx-auto mb-4">
-            <Stethoscope className="w-6 h-6 text-white" />
+          <div className="w-14 h-14 bg-gradient-to-br from-indigo-600 to-violet-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-indigo-500/30">
+            <Stethoscope className="w-7 h-7 text-white" />
           </div>
-          <h1 className="text-2xl font-bold text-gray-900">DataDoctor AI</h1>
-          <p className="text-gray-500 mt-2">Create your account to get started</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">
+            DataDoctor AI
+          </h1>
+          <p className="text-gray-500 dark:text-gray-400 mt-2 flex items-center justify-center gap-1.5">
+            <Sparkles className="w-4 h-4 text-violet-500" />
+            Create your account to get started
+          </p>
         </div>
 
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
+        <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-xl rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 p-8">
           {error && (
-            <div className="bg-red-50 text-red-600 px-4 py-3 rounded-lg mb-4 text-sm">
+            <div className="bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 px-4 py-3 rounded-xl mb-5 text-sm animate-slide-down">
               {error}
             </div>
           )}
 
-          <form onSubmit={handleSubmit}>
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-2">Name</label>
-              <input
-                type="text"
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                required
-                placeholder="Your name"
-              />
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Name
+              </label>
+              <div className="relative">
+                <User className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                <input
+                  type="text"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  className="w-full pl-10 pr-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500 transition-all"
+                  required
+                  placeholder="Your name"
+                />
+              </div>
             </div>
 
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
-              <input
-                type="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                required
-                placeholder="your@email.com"
-              />
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Email
+              </label>
+              <div className="relative">
+                <Mail className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                <input
+                  type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  className="w-full pl-10 pr-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500 transition-all"
+                  required
+                  placeholder="your@email.com"
+                />
+              </div>
             </div>
 
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-2">Password</label>
-              <input
-                type="password"
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                required
-                placeholder="Minimum 6 characters"
-              />
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Password
+              </label>
+              <div className="relative">
+                <Lock className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                <input
+                  type="password"
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  className="w-full pl-10 pr-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500 transition-all"
+                  required
+                  placeholder="Minimum 6 characters"
+                />
+              </div>
             </div>
 
-            <div className="mb-6">
-              <label className="block text-sm font-medium text-gray-700 mb-2">Confirm Password</label>
-              <input
-                type="password"
-                name="confirm_password"
-                value={formData.confirm_password}
-                onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                required
-                placeholder="Confirm your password"
-              />
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Confirm Password
+              </label>
+              <div className="relative">
+                <Lock className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                <input
+                  type="password"
+                  name="confirm_password"
+                  value={formData.confirm_password}
+                  onChange={handleChange}
+                  className="w-full pl-10 pr-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500 transition-all"
+                  required
+                  placeholder="Confirm your password"
+                />
+              </div>
             </div>
 
             <button
               type="submit"
               disabled={loading}
-              className="w-full inline-flex items-center justify-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
+              className="btn-press w-full inline-flex items-center justify-center px-4 py-3 mt-1 bg-gradient-to-r from-indigo-600 to-violet-600 text-white rounded-xl font-semibold shadow-lg shadow-indigo-500/25 hover:shadow-xl hover:scale-[1.01] transition-all disabled:opacity-50 disabled:hover:scale-100"
             >
-              <UserPlus className="w-4 h-4 mr-2" />
-              {loading ? 'Creating account...' : 'Register'}
+              {loading ? (
+                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+              ) : (
+                <>
+                  <UserPlus className="w-4 h-4 mr-2" />
+                  Create Account
+                </>
+              )}
             </button>
           </form>
 
-          <p className="text-center mt-4 text-sm text-gray-500">
+          <p className="text-center mt-6 text-sm text-gray-500 dark:text-gray-400">
             Already have an account?{' '}
-            <Link to="/login" className="text-blue-600 hover:text-blue-700 font-medium">
+            <Link to="/login" className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 font-semibold">
               Login
             </Link>
           </p>

@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useContext, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import { AuthContext } from '../App';
-import { 
-  AlertTriangle, CheckCircle2, Download, Wand2, RefreshCw, 
-  Database, Filter, ChevronDown, Info, TrendingUp, Trash2, Edit3
+import {
+  AlertTriangle, CheckCircle2, Download, Wand2, RefreshCw,
+  Database, Filter, ChevronDown, TrendingUp, Trash2, Edit3, Activity
 } from 'lucide-react';
+import LoadingState from '../components/LoadingState';
 
 const METHOD_OPTIONS = {
   mean: { label: 'Mean (Average)', icon: TrendingUp },
@@ -17,14 +18,14 @@ const METHOD_OPTIONS = {
 };
 
 const TYPE_COLORS = {
-  numeric: 'bg-blue-100 text-blue-800',
-  categorical: 'bg-green-100 text-green-800',
-  text: 'bg-gray-100 text-gray-800',
-  datetime: 'bg-purple-100 text-purple-800',
-  identifier: 'bg-orange-100 text-orange-800',
-  boolean: 'bg-teal-100 text-teal-800',
-  ordinal: 'bg-pink-100 text-pink-800',
-  binary: 'bg-indigo-100 text-indigo-800',
+  numeric: 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300',
+  categorical: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300',
+  text: 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300',
+  datetime: 'bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300',
+  identifier: 'bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-300',
+  boolean: 'bg-teal-100 text-teal-700 dark:bg-teal-900/40 dark:text-teal-300',
+  ordinal: 'bg-pink-100 text-pink-700 dark:bg-pink-900/40 dark:text-pink-300',
+  binary: 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300',
 };
 
 const CleaningCenter = () => {
@@ -56,17 +57,12 @@ const CleaningCenter = () => {
           headers: { 'Authorization': `Bearer ${token}` }
         })
       ]);
-      
-      if (!issuesRes.ok) {
-        throw new Error(`Failed to fetch issues: ${issuesRes.status}`);
-      }
-      
+
+      if (!issuesRes.ok) throw new Error(`Failed to fetch issues: ${issuesRes.status}`);
+
       const issuesData = await issuesRes.json();
       const logData = await logRes.json();
-      
-      console.log('Fetched issues:', issuesData.issues?.length || 0);
-      console.log('Fetched cleaning log:', logData.operations?.length || 0);
-      
+
       setIssues(issuesData.issues || []);
       setCleaningLog(logData.operations || []);
     } catch (error) {
@@ -106,9 +102,7 @@ const CleaningCenter = () => {
   }, [fetchData, fetchColumnTypes, refreshKey]);
 
   const getColumnType = (columnName) => {
-    if (userOverrides[columnName]) {
-      return userOverrides[columnName];
-    }
+    if (userOverrides[columnName]) return userOverrides[columnName];
     return columnTypes[columnName]?.semantic_type || 'numeric';
   };
 
@@ -143,16 +137,11 @@ const CleaningCenter = () => {
   };
 
   const handleTypeOverride = (columnName, newType) => {
-    setUserOverrides(prev => ({
-      ...prev,
-      [columnName]: newType
-    }));
+    setUserOverrides(prev => ({ ...prev, [columnName]: newType }));
     setSelectedOperations(prev => {
       const newPrev = { ...prev };
       Object.keys(newPrev).forEach(key => {
-        if (key.includes(columnName)) {
-          delete newPrev[key];
-        }
+        if (key.includes(columnName)) delete newPrev[key];
       });
       return newPrev;
     });
@@ -163,12 +152,12 @@ const CleaningCenter = () => {
     setCleaningIssueId(index);
     setMessage('');
     setError('');
-    
+
     const issueKey = `${issue.type}-${issue.column}-${index}`;
     const selectedOp = selectedOperations[issueKey] || getDefaultMethod(issue.column);
-    
+
     let operation = { type: '', column: issue.column };
-    
+
     switch (issue.type) {
       case 'missing_values':
         operation.type = 'fill_missing';
@@ -196,10 +185,8 @@ const CleaningCenter = () => {
         operation.type = 'fill_missing';
         operation.method = selectedOp;
     }
-    
+
     try {
-      console.log('Applying cleaning operation:', operation);
-      
       const response = await fetch(`http://localhost:8000/api/datasets/${id}/clean`, {
         method: 'POST',
         headers: {
@@ -208,17 +195,13 @@ const CleaningCenter = () => {
         },
         body: JSON.stringify(operation)
       });
-      
+
       const data = await response.json();
-      
+
       if (response.ok) {
         setBeforeAfter(data);
         setMessage('Cleaning operation applied successfully');
-        
-        // Force refetch from backend
         setRefreshKey(prev => prev + 1);
-        
-        // Also immediately refetch
         await fetchData();
       } else {
         setError(data.detail || 'Cleaning operation failed');
@@ -238,7 +221,7 @@ const CleaningCenter = () => {
       const response = await fetch(`http://localhost:8000/api/datasets/${id}/download`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
-      
+
       if (response.ok) {
         const blob = await response.blob();
         const url = window.URL.createObjectURL(blob);
@@ -258,123 +241,153 @@ const CleaningCenter = () => {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center py-12">
-        <div className="flex items-center space-x-3">
-          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
-          <span className="text-gray-500">Loading cleaning center...</span>
-        </div>
-      </div>
-    );
-  }
+  if (loading) return <LoadingState message="Loading cleaning center..." />;
+
+  const severityStyles = {
+    critical: 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-400',
+    high: 'bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-400',
+    medium: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-400',
+    low: 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-400',
+  };
 
   return (
-    <div>
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center">
-          <Wand2 className="w-6 h-6 mr-2 text-blue-600" />
-          Cleaning Center
-        </h1>
-        <p className="text-gray-500 dark:text-gray-400 mt-1">Fix data quality issues with semantic-aware methods</p>
+    <div className="animate-fade-in space-y-8">
+      {/* Hero Header */}
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-700 via-teal-800 to-cyan-900 p-6 sm:p-8 text-white shadow-xl">
+        <div className="absolute top-0 right-0 w-72 h-72 bg-teal-400/20 rounded-full -translate-y-1/2 translate-x-1/3 blur-3xl"></div>
+        <div className="absolute bottom-0 left-0 w-48 h-48 bg-emerald-300/10 rounded-full translate-y-1/3 -translate-x-1/4 blur-2xl"></div>
+
+        <div className="relative z-10 flex items-start gap-4">
+          <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center shadow-lg shadow-emerald-500/30 flex-shrink-0">
+            <Wand2 className="w-7 h-7 text-white" />
+          </div>
+          <div>
+            <div className="flex items-center gap-2 mb-1">
+              <Activity className="w-4 h-4 text-emerald-200" />
+              <span className="text-emerald-200 text-sm font-medium">Data Cleaning Studio</span>
+            </div>
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Cleaning Center</h1>
+            <p className="mt-1.5 text-teal-100 text-sm max-w-lg">
+              Fix data quality issues with smart, semantic-aware methods
+            </p>
+          </div>
+        </div>
       </div>
 
+      {/* Alerts */}
       {message && (
-        <div className="bg-green-50 dark:bg-green-900 border border-green-200 dark:border-green-700 text-green-700 dark:text-green-200 px-4 py-3 rounded-lg mb-4 flex items-center">
-          <CheckCircle2 className="w-5 h-5 mr-2" />
+        <div className="bg-emerald-50 dark:bg-emerald-900/30 border border-emerald-200 dark:border-emerald-700 text-emerald-700 dark:text-emerald-300 px-4 py-3 rounded-xl flex items-center gap-2 animate-slide-down">
+          <CheckCircle2 className="w-5 h-5 flex-shrink-0" />
           {message}
         </div>
       )}
-      
+
       {error && (
-        <div className="bg-red-50 dark:bg-red-900 border border-red-200 dark:border-red-700 text-red-700 dark:text-red-200 px-4 py-3 rounded-lg mb-4 flex items-center">
-          <AlertTriangle className="w-5 h-5 mr-2" />
+        <div className="bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-700 text-red-700 dark:text-red-300 px-4 py-3 rounded-xl flex items-center gap-2 animate-slide-down">
+          <AlertTriangle className="w-5 h-5 flex-shrink-0" />
           {error}
         </div>
       )}
 
+      {/* Cleaning Complete Banner */}
       {cleaningLog.length > 0 && (
-        <div className="bg-green-50 dark:bg-green-900 border border-green-200 dark:border-green-700 rounded-xl p-6 mb-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-lg font-semibold text-green-800 dark:text-green-200 flex items-center">
-                <CheckCircle2 className="w-5 h-5 mr-2" />
-                Data Cleaning Complete
-              </h2>
-              <p className="text-sm text-green-600 dark:text-green-400 mt-1">
-                {cleaningLog.length} operation(s) applied. Download your cleaned dataset now.
-              </p>
+        <div className="bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20 border border-emerald-200 dark:border-emerald-800 rounded-2xl p-6 animate-slide-up">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div className="flex items-start gap-3">
+              <div className="w-11 h-11 rounded-xl bg-emerald-500 flex items-center justify-center flex-shrink-0 shadow-md shadow-emerald-500/30">
+                <CheckCircle2 className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <h2 className="text-lg font-semibold text-emerald-800 dark:text-emerald-200">
+                  Data Cleaning Complete
+                </h2>
+                <p className="text-sm text-emerald-600 dark:text-emerald-400 mt-0.5">
+                  {cleaningLog.length} operation(s) applied. Download your cleaned dataset now.
+                </p>
+              </div>
             </div>
             <button
               onClick={handleDownload}
               disabled={downloading}
-              className="inline-flex items-center px-5 py-2.5 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 disabled:opacity-50 transition-colors"
+              className="btn-press inline-flex items-center gap-2 px-5 py-2.5 bg-emerald-600 text-white rounded-xl font-medium hover:bg-emerald-700 disabled:opacity-50 shadow-lg shadow-emerald-500/25 transition-all"
             >
-              <Download className="w-4 h-4 mr-2" />
+              <Download className="w-4 h-4" />
               {downloading ? 'Downloading...' : 'Download Cleaned File'}
             </button>
           </div>
         </div>
       )}
 
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 mb-6">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-            Data Quality Issues ({issues.length})
-          </h2>
+      {/* Issues Section */}
+      <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden">
+        <div className="px-6 py-5 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
+          <div>
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+              Data Quality Issues
+            </h2>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
+              {issues.length} issue{issues.length !== 1 ? 's' : ''} remaining
+            </p>
+          </div>
           <button
             onClick={() => setRefreshKey(prev => prev + 1)}
-            className="inline-flex items-center px-3 py-1.5 text-sm text-gray-500 hover:text-gray-700 transition-colors"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm text-gray-500 hover:text-gray-800 dark:hover:text-gray-200 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
           >
-            <RefreshCw className="w-4 h-4 mr-1" />
+            <RefreshCw className="w-4 h-4" />
             Refresh
           </button>
         </div>
-        
+
         {issues.length === 0 ? (
-          <div className="text-center py-12">
-            <div className="mx-auto w-16 h-16 bg-green-50 dark:bg-green-900 rounded-full flex items-center justify-center mb-4">
-              <CheckCircle2 className="w-8 h-8 text-green-500" />
+          <div className="py-16 text-center animate-scale-in">
+            <div className="mx-auto w-16 h-16 rounded-2xl bg-emerald-50 dark:bg-emerald-900/30 flex items-center justify-center mb-4">
+              <CheckCircle2 className="w-8 h-8 text-emerald-500" />
             </div>
-            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">No Data Quality Issues</h3>
-            <p className="text-gray-500">Your dataset has been successfully cleaned.</p>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-1">
+              No Data Quality Issues
+            </h3>
+            <p className="text-gray-500 dark:text-gray-400">
+              Your dataset has been successfully cleaned.
+            </p>
           </div>
         ) : (
-          <div className="space-y-3">
+          <div className="divide-y divide-gray-100 dark:divide-gray-700">
             {issues.map((issue, index) => {
               const issueKey = `${issue.type}-${issue.column}-${index}`;
               const colType = getColumnType(issue.column);
               const allowedMethods = getAllowedMethods(issue.column);
               const selectedOp = selectedOperations[issueKey] || getDefaultMethod(issue.column);
-              
+
               return (
-                <div key={issueKey} className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:shadow-sm transition-shadow">
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-1 flex-wrap">
-                        <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                          issue.severity === 'critical' ? 'bg-red-100 text-red-800' :
-                          issue.severity === 'high' ? 'bg-orange-100 text-orange-800' :
-                          issue.severity === 'medium' ? 'bg-yellow-100 text-yellow-800' :
-                          issue.severity === 'low' ? 'bg-blue-100 text-blue-800' :
-                          'bg-gray-100 text-gray-800'
-                        }`}>
-                          {issue.severity?.toUpperCase()}
+                <div
+                  key={issueKey}
+                  className="stagger-item p-5 sm:p-6 hover:bg-gray-50/80 dark:hover:bg-gray-700/20 transition-colors"
+                  style={{ animationDelay: `${index * 0.04}s` }}
+                >
+                  <div className="flex flex-col lg:flex-row lg:items-start gap-4">
+                    <div className="flex-1 min-w-0">
+                      {/* Badges */}
+                      <div className="flex flex-wrap items-center gap-2 mb-2">
+                        <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${severityStyles[issue.severity] || severityStyles.low}`}>
+                          {issue.severity?.toUpperCase() || 'UNKNOWN'}
                         </span>
-                        <span className="font-medium text-gray-900 dark:text-white">
+                        <span className="font-semibold text-gray-900 dark:text-white">
                           {issue.type?.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
                         </span>
-                        <span className="text-sm text-gray-500">on {issue.column}</span>
+                        <span className="text-sm text-gray-500 dark:text-gray-400">
+                          on <span className="font-medium text-gray-700 dark:text-gray-300">{issue.column}</span>
+                        </span>
                       </div>
-                      
-                      <div className="flex items-center gap-2 mt-2 mb-3">
-                        <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${TYPE_COLORS[colType] || 'bg-gray-100 text-gray-800'}`}>
+
+                      {/* Type selector */}
+                      <div className="flex flex-wrap items-center gap-2 mb-3">
+                        <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${TYPE_COLORS[colType] || TYPE_COLORS.text}`}>
                           {colType.toUpperCase()}
                         </span>
                         <select
                           value={colType}
                           onChange={(e) => handleTypeOverride(issue.column, e.target.value)}
-                          className="text-xs px-2 py-1 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300"
+                          className="text-xs px-2.5 py-1 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300 focus:ring-2 focus:ring-emerald-500/40"
                         >
                           <option value="numeric">Numeric</option>
                           <option value="categorical">Categorical</option>
@@ -386,16 +399,19 @@ const CleaningCenter = () => {
                           <option value="binary">Binary</option>
                         </select>
                       </div>
-                      
-                      <p className="text-gray-700 dark:text-gray-300 text-sm">{issue.issue}</p>
-                      <p className="text-sm text-gray-500 mt-1">
+
+                      <p className="text-gray-700 dark:text-gray-300 text-sm leading-relaxed">
+                        {issue.issue}
+                      </p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1.5">
                         {issue.affected_rows} rows affected ({issue.percentage_affected}%)
                       </p>
-                      
-                      {issue.type !== "high_cardinality" && (
-                        <div className="mt-3">
-                          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                            Cleaning Method:
+
+                      {/* Method selector */}
+                      {issue.type !== 'high_cardinality' && (
+                        <div className="mt-4">
+                          <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 uppercase tracking-wide">
+                            Cleaning Method
                           </label>
                           <select
                             value={selectedOp}
@@ -405,7 +421,7 @@ const CleaningCenter = () => {
                                 [issueKey]: e.target.value
                               }));
                             }}
-                            className="w-full md:w-64 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            className="w-full sm:w-72 px-3.5 py-2.5 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500 transition-all"
                             disabled={cleaning}
                           >
                             {allowedMethods.map(method => (
@@ -414,9 +430,9 @@ const CleaningCenter = () => {
                               </option>
                             ))}
                           </select>
-                          
+
                           {selectedOp === 'custom' && (
-                            <div className="mt-2">
+                            <div className="mt-3">
                               <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
                                 Enter Custom Value
                               </label>
@@ -430,19 +446,19 @@ const CleaningCenter = () => {
                                   }));
                                 }}
                                 placeholder="Enter value to fill missing data"
-                                className="w-full md:w-64 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                className="w-full sm:w-72 px-3.5 py-2.5 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500 transition-all"
                               />
                             </div>
                           )}
                         </div>
                       )}
 
-                      {issue.type === "high_cardinality" && (
-                        <div className="mt-3 bg-gray-50 dark:bg-gray-700 rounded-lg p-3">
-                          <p className="text-sm text-gray-600 dark:text-gray-400">
-                            Unique Values: {issue.unique_count || issue.unique || "N/A"}
+                      {issue.type === 'high_cardinality' && (
+                        <div className="mt-4 bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4 border border-gray-100 dark:border-gray-600">
+                          <p className="text-sm text-gray-600 dark:text-gray-300">
+                            Unique Values: <strong>{issue.unique_count || issue.unique || 'N/A'}</strong>
                             <br />
-                            Cardinality: {issue.cardinality_percentage || issue.percentage_affected || "N/A"}%
+                            Cardinality: <strong>{issue.cardinality_percentage || issue.percentage_affected || 'N/A'}%</strong>
                           </p>
                           <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
                             High cardinality is informational and does not require a cleaning operation.
@@ -450,24 +466,25 @@ const CleaningCenter = () => {
                         </div>
                       )}
                     </div>
-                    
-                    {issue.type !== "high_cardinality" && (
+
+                    {/* Fix Button */}
+                    {issue.type !== 'high_cardinality' && (
                       <button
                         onClick={() => handleClean(issue, index)}
                         disabled={cleaning}
-                        className={`ml-4 px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${
+                        className={`btn-press flex-shrink-0 px-5 py-2.5 rounded-xl text-sm font-semibold whitespace-nowrap transition-all ${
                           cleaningIssueId === index
                             ? 'bg-gray-400 text-white cursor-not-allowed'
-                            : 'bg-blue-600 text-white hover:bg-blue-700'
+                            : 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-lg shadow-emerald-500/25 hover:shadow-xl hover:scale-[1.02]'
                         }`}
                       >
                         {cleaningIssueId === index ? (
-                          <span className="flex items-center">
-                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                          <span className="flex items-center gap-2">
+                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                             Fixing...
                           </span>
                         ) : (
-                          "Fix Issue"
+                          'Fix Issue'
                         )}
                       </button>
                     )}

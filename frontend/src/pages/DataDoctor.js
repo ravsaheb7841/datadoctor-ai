@@ -1,7 +1,11 @@
-import React, { useState, useEffect, useContext } from 'react';
+﻿import React, { useState, useEffect, useContext, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../App';
-import { Stethoscope, Bot, Wand2, AlertCircle, CheckCircle2, RefreshCw, Info } from 'lucide-react';
+import {
+  Stethoscope, Bot, Wand2, AlertCircle, CheckCircle2,
+  RefreshCw, Activity, ArrowRight
+} from 'lucide-react';
+import LoadingState from '../components/LoadingState';
 
 const DataDoctor = () => {
   const { id } = useParams();
@@ -11,14 +15,51 @@ const DataDoctor = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [diagnosing, setDiagnosing] = useState(false);
+  const [healthScore, setHealthScore] = useState(0);
+  const [displayScore, setDisplayScore] = useState(0);
   const navigate = useNavigate();
+  const scoreTimerRef = useRef(null);
 
   useEffect(() => {
     if (id && token) {
       fetchIssues();
+      fetchHealthScore();
     }
+    return () => {
+      if (scoreTimerRef.current) clearInterval(scoreTimerRef.current);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, token]);
+
+  useEffect(() => {
+    if (healthScore > 0) {
+      let current = 0;
+      scoreTimerRef.current = setInterval(() => {
+        current += 1;
+        if (current >= healthScore) {
+          clearInterval(scoreTimerRef.current);
+        }
+        setDisplayScore(Math.min(current, healthScore));
+      }, 15);
+    }
+    return () => {
+      if (scoreTimerRef.current) clearInterval(scoreTimerRef.current);
+    };
+  }, [healthScore]);
+
+  const fetchHealthScore = async () => {
+    try {
+      const response = await fetch(`http://localhost:8000/api/datasets/${id}/health`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setHealthScore(data.score || 0);
+      }
+    } catch (error) {
+      console.error('Failed to fetch health score:', error);
+    }
+  };
 
   const fetchIssues = async () => {
     setLoading(true);
@@ -27,7 +68,7 @@ const DataDoctor = () => {
       const response = await fetch(`http://localhost:8000/api/datasets/${id}/issues`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
-      if (!response.ok) throw new Error(`Failed to fetch issues: ${response.status}`);
+      if (!response.ok) throw new Error(`Failed: ${response.status}`);
       const data = await response.json();
       setIssues(data.issues || []);
     } catch (error) {
@@ -46,133 +87,212 @@ const DataDoctor = () => {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${token}` }
       });
-      if (!response.ok) throw new Error(`Diagnosis failed: ${response.status}`);
+      if (!response.ok) throw new Error(`Failed: ${response.status}`);
       const data = await response.json();
       setDiagnosis(data);
     } catch (error) {
-      console.error('Diagnosis failed:', error);
       setError('AI diagnosis failed');
     } finally {
       setDiagnosing(false);
     }
   };
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center py-12">
-        <div className="flex items-center space-x-3">
-          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
-          <span className="text-gray-500">Loading issues...</span>
-        </div>
-      </div>
-    );
-  }
+  if (loading) return <LoadingState message="Loading diagnosis..." />;
+
+  const getHealthStyle = (score) => {
+    if (score >= 80) return { text: 'text-emerald-600', ring: '#10B981', bg: 'from-emerald-500 to-teal-600', label: 'Excellent' };
+    if (score >= 60) return { text: 'text-amber-600', ring: '#F59E0B', bg: 'from-amber-500 to-orange-600', label: 'Fair' };
+    return { text: 'text-red-600', ring: '#EF4444', bg: 'from-red-500 to-rose-600', label: 'Needs Attention' };
+  };
+
+  const health = getHealthStyle(displayScore);
+
+  const severityStyles = {
+    critical: 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-400 border-red-200 dark:border-red-800',
+    high: 'bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-400 border-orange-200 dark:border-orange-800',
+    medium: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-400 border-yellow-200 dark:border-yellow-800',
+    low: 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-400 border-blue-200 dark:border-blue-800',
+  };
 
   return (
-    <div>
-      <div className="flex justify-between items-start mb-6">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center">
-            <Stethoscope className="w-6 h-6 mr-2 text-blue-600" />
-            Data Doctor
-          </h1>
-          <p className="text-gray-500 dark:text-gray-400 mt-1">Diagnose data quality issues</p>
-        </div>
-        <div className="flex space-x-3">
-          <button
-            onClick={runDiagnosis}
-            disabled={diagnosing}
-            className="inline-flex items-center px-4 py-2 bg-purple-600 text-white rounded-lg text-sm hover:bg-purple-700 disabled:opacity-50 transition-colors"
-          >
-            <Bot className="w-4 h-4 mr-2" />
-            {diagnosing ? 'Analyzing...' : 'AI Diagnosis'}
-          </button>
-          <button
-            onClick={() => navigate(`/datasets/${id}/cleaning`)}
-            className="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700 transition-colors"
-          >
-            <Wand2 className="w-4 h-4 mr-2" />
-            Clean Data
-          </button>
+    <div className="animate-fade-in space-y-8">
+      {/* Hero Header */}
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-800 via-slate-900 to-indigo-950 p-6 sm:p-8 text-white shadow-xl">
+        <div className="absolute top-0 right-0 w-72 h-72 bg-indigo-500/20 rounded-full -translate-y-1/2 translate-x-1/3 blur-3xl"></div>
+        <div className="absolute bottom-0 left-0 w-48 h-48 bg-purple-400/10 rounded-full translate-y-1/3 -translate-x-1/4 blur-2xl"></div>
+
+        <div className="relative z-10 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+          <div className="flex items-start gap-4">
+            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/30 flex-shrink-0">
+              <Stethoscope className="w-7 h-7 text-white" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2 mb-1">
+                <Activity className="w-4 h-4 text-blue-300" />
+                <span className="text-blue-300 text-sm font-medium">Data Quality Diagnosis</span>
+              </div>
+              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Data Doctor</h1>
+              <p className="mt-1.5 text-slate-300 text-sm">
+                Detect issues and get AI-powered recommendations
+              </p>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap gap-3">
+            <button
+              onClick={runDiagnosis}
+              disabled={diagnosing}
+              className="btn-press group inline-flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-semibold rounded-xl shadow-lg shadow-purple-500/25 hover:shadow-xl hover:scale-[1.02] disabled:opacity-60 transition-all"
+            >
+              {diagnosing ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  Analyzing...
+                </>
+              ) : (
+                <>
+                  <Bot className="w-5 h-5" />
+                  AI Diagnosis
+                </>
+              )}
+            </button>
+            <button
+              onClick={() => navigate(`/datasets/${id}/cleaning`)}
+              className="btn-press group inline-flex items-center gap-2 px-5 py-3 bg-white text-slate-800 font-semibold rounded-xl shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all"
+            >
+              <Wand2 className="w-5 h-5" />
+              Clean Data
+              <ArrowRight className="w-4 h-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all" />
+            </button>
+          </div>
         </div>
       </div>
 
       {error && (
-        <div className="bg-red-50 text-red-600 px-4 py-3 rounded-lg mb-4 flex items-center">
-          <AlertCircle className="w-5 h-5 mr-2" />
+        <div className="bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 px-4 py-3 rounded-xl flex items-center gap-2 animate-slide-down">
+          <AlertCircle className="w-5 h-5" />
           {error}
         </div>
       )}
 
+      {/* Health Score Card */}
+      <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm p-8 flex flex-col sm:flex-row items-center justify-center gap-10">
+        <div className="relative w-40 h-40">
+          <svg className="w-40 h-40" viewBox="0 0 100 100">
+            <circle cx="50" cy="50" r="42" fill="none" stroke="currentColor" strokeWidth="8" className="text-gray-100 dark:text-gray-700" />
+            <circle
+              cx="50" cy="50" r="42" fill="none"
+              stroke={health.ring}
+              strokeWidth="8"
+              strokeLinecap="round"
+              strokeDasharray={`${(displayScore / 100) * 264} 264`}
+              transform="rotate(-90 50 50)"
+              style={{ transition: 'stroke-dasharray 0.4s ease' }}
+            />
+          </svg>
+          <div className="absolute inset-0 flex flex-col items-center justify-center">
+            <span className={`text-3xl font-bold ${health.text}`}>{displayScore}</span>
+            <span className="text-xs text-gray-400 font-medium">/ 100</span>
+          </div>
+        </div>
+
+        <div className="text-center sm:text-left">
+          <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Data Health Score</p>
+          <p className={`text-2xl font-bold ${health.text}`}>{health.label}</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-2 max-w-xs">
+            {displayScore >= 80
+              ? 'Your data is in great shape. Minor improvements possible.'
+              : displayScore >= 60
+              ? 'Some issues detected. Cleaning recommended.'
+              : 'Multiple issues found. Immediate cleaning advised.'}
+          </p>
+        </div>
+      </div>
+
+      {/* AI Diagnosis */}
       {diagnosis && (
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 mb-6">
-          <div className="flex items-center mb-4">
-            <Bot className="w-6 h-6 mr-3 text-purple-600" />
+        <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm p-6 animate-slide-up">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-purple-500/25">
+              <Bot className="w-5 h-5 text-white" />
+            </div>
             <div>
               <h2 className="text-lg font-semibold text-gray-900 dark:text-white">AI Diagnosis</h2>
-              <p className="text-xs text-gray-500">
-                {diagnosis.source === 'ai' ? 'Powered by DeepSeek AI' : 'Rule-based analysis'}
+              <p className="text-xs text-gray-500 dark:text-gray-400">
+                {diagnosis.source === 'ai' ? 'Powered by AI' : 'Rule-based analysis'}
               </p>
             </div>
           </div>
-          <p className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap">{diagnosis.diagnosis}</p>
+          <div className="bg-gray-50 dark:bg-gray-900/50 rounded-xl p-4 border border-gray-100 dark:border-gray-700">
+            <p className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap leading-relaxed">
+              {diagnosis.diagnosis}
+            </p>
+          </div>
         </div>
       )}
 
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-            Detected Issues ({issues.length})
-          </h2>
+      {/* Issues List */}
+      <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden">
+        <div className="px-6 py-5 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
+          <div>
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+              Detected Issues
+            </h2>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
+              {issues.length} issue{issues.length !== 1 ? 's' : ''} found
+            </p>
+          </div>
           <button
             onClick={fetchIssues}
-            className="inline-flex items-center px-3 py-1.5 text-sm text-gray-500 hover:text-gray-700 transition-colors"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm text-gray-500 hover:text-gray-800 dark:hover:text-gray-200 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
           >
-            <RefreshCw className="w-4 h-4 mr-1" />
+            <RefreshCw className="w-4 h-4" />
             Refresh
           </button>
         </div>
-        
+
         {issues.length === 0 ? (
-          <div className="text-center py-12">
-            <div className="mx-auto w-16 h-16 bg-green-50 dark:bg-green-900 rounded-full flex items-center justify-center mb-4">
-              <CheckCircle2 className="w-8 h-8 text-green-500" />
+          <div className="py-16 text-center animate-scale-in">
+            <div className="mx-auto w-16 h-16 rounded-2xl bg-emerald-50 dark:bg-emerald-900/30 flex items-center justify-center mb-4">
+              <CheckCircle2 className="w-8 h-8 text-emerald-500" />
             </div>
-            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">No issues detected</h3>
-            <p className="text-gray-500">Your data looks clean.</p>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-1">
+              No issues detected
+            </h3>
+            <p className="text-gray-500 dark:text-gray-400">
+              Your data looks clean and healthy.
+            </p>
           </div>
         ) : (
-          <div className="space-y-3">
+          <div className="divide-y divide-gray-100 dark:divide-gray-700">
             {issues.map((issue, index) => (
-              <div key={index} className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
-                <div className="flex items-start justify-between mb-2">
-                  <div className="flex items-center flex-wrap gap-2">
-                    <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                      issue.severity === 'critical' ? 'bg-red-100 text-red-800' :
-                      issue.severity === 'high' ? 'bg-orange-100 text-orange-800' :
-                      issue.severity === 'medium' ? 'bg-yellow-100 text-yellow-800' :
-                      issue.severity === 'low' ? 'bg-blue-100 text-blue-800' :
-                      'bg-gray-100 text-gray-800'
-                    }`}>
-                      {issue.severity?.toUpperCase()}
-                    </span>
-                    <span className="font-medium text-gray-900 dark:text-white">
-                      {issue.type?.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
-                    </span>
-                  </div>
-                </div>
-                <p className="text-gray-700 dark:text-gray-300">{issue.issue}</p>
-                <p className="text-sm text-gray-500 mt-1">
-                  {issue.affected_rows} rows affected ({issue.percentage_affected}%)
-                </p>
-                {issue.recommended_action && (
-                  <div className="mt-3 bg-gray-50 dark:bg-gray-700 rounded p-3 flex items-start">
-                    <Info className="w-4 h-4 mr-2 text-blue-500 mt-0.5" />
-                    <p className="text-sm text-gray-600 dark:text-gray-400">
-                      <strong>Recommended:</strong> {issue.recommended_action}
+              <div
+                key={index}
+                className="stagger-item p-5 hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors"
+                style={{ animationDelay: `${index * 0.05}s` }}
+              >
+                <div className="flex items-start gap-3">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex flex-wrap items-center gap-2 mb-2">
+                      <span
+                        className={`px-2.5 py-1 rounded-full text-xs font-semibold border ${
+                          severityStyles[issue.severity] || severityStyles.low
+                        }`}
+                      >
+                        {issue.severity?.toUpperCase() || 'UNKNOWN'}
+                      </span>
+                      <span className="font-semibold text-gray-900 dark:text-white">
+                        {issue.type?.replace(/_/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase())}
+                      </span>
+                    </div>
+                    <p className="text-gray-700 dark:text-gray-300 text-sm leading-relaxed">
+                      {issue.issue}
+                    </p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+                      {issue.affected_rows} rows affected ({issue.percentage_affected}%)
                     </p>
                   </div>
-                )}
+                </div>
               </div>
             ))}
           </div>
