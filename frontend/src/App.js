@@ -1,4 +1,3 @@
-// App.js with better error handling
 import React, { useState, useEffect, createContext } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Landing from './pages/Landing';
@@ -17,6 +16,10 @@ import Reports from './pages/Reports';
 import DatasetHistory from './pages/DatasetHistory';
 import Settings from './pages/Settings';
 import Layout from './layouts/Layout';
+import DemoLayout from './layouts/DemoLayout';
+import DemoDashboard from './pages/DemoDashboard';
+import DemoEDA from './pages/DemoEDA';
+import DemoChat from './pages/DemoChat';
 
 export const AuthContext = createContext();
 export const ThemeContext = createContext();
@@ -56,7 +59,6 @@ function App() {
       }
     } catch (error) {
       console.error('Failed to fetch user:', error);
-      // Don't logout on network error, just log it
     }
   };
 
@@ -86,7 +88,13 @@ function App() {
               <Route path="/" element={!user ? <Landing /> : <Navigate to="/dashboard" />} />
               <Route path="/login" element={!user ? <Login /> : <Navigate to="/dashboard" />} />
               <Route path="/register" element={!user ? <Register /> : <Navigate to="/dashboard" />} />
-              
+
+              <Route path="/demo" element={<DemoLayout />}>
+                <Route index element={<DemoDashboard />} />
+                <Route path="eda" element={<DemoEDA />} />
+                <Route path="chat" element={<DemoChat />} />
+              </Route>
+
               <Route element={<Layout currentDataset={currentDataset} setCurrentDataset={setCurrentDataset} />}>
                 <Route path="/dashboard" element={user ? <Dashboard /> : <Navigate to="/login" />} />
                 <Route path="/datasets" element={user ? <Datasets /> : <Navigate to="/login" />} />
