@@ -184,6 +184,116 @@ async def apply_cleaning_operation(dataset_id, operation, db):
         elif op_type == "drop_column":
             if column and column != "all" and column in df.columns:
                 df = df.drop(columns=[column])
+
+        elif op_type == "trim_whitespace":
+            if column and column != "all" and column in df.columns:
+                df[column] = df[column].astype(str).str.strip()
+
+        elif op_type == "remove_extra_spaces":
+            if column and column != "all" and column in df.columns:
+                df[column] = df[column].astype(str).str.replace(r"\s+", " ", regex=True).str.strip()
+
+        elif op_type == "lowercase":
+            if column and column != "all" and column in df.columns:
+                df[column] = df[column].astype(str).str.lower()
+
+        elif op_type == "uppercase":
+            if column and column != "all" and column in df.columns:
+                df[column] = df[column].astype(str).str.upper()
+
+        elif op_type == "title_case":
+            if column and column != "all" and column in df.columns:
+                df[column] = df[column].astype(str).str.title()
+
+        elif op_type == "round":
+            if column and column != "all" and column in df.columns:
+                df[column] = pd.to_numeric(df[column], errors="coerce").round()
+
+        elif op_type == "absolute_value":
+            if column and column != "all" and column in df.columns:
+                df[column] = pd.to_numeric(df[column], errors="coerce").abs()
+
+        elif op_type == "remove_commas":
+            if column and column != "all" and column in df.columns:
+                df[column] = df[column].astype(str).str.replace(",", "")
+
+        elif op_type == "remove_currency":
+            if column and column != "all" and column in df.columns:
+                df[column] = df[column].astype(str).str.replace(r"[$€£₹]", "", regex=True)
+
+        elif op_type == "replace_median":
+            if column and column != "all" and column in df.columns:
+                median_val = df[column].median()
+                df[column] = df[column].fillna(median_val)
+
+        elif op_type == "convert_to_int":
+            if column and column != "all" and column in df.columns:
+                df[column] = pd.to_numeric(df[column], errors="coerce").astype("Int64")
+
+        elif op_type == "convert_to_float":
+            if column and column != "all" and column in df.columns:
+                df[column] = pd.to_numeric(df[column], errors="coerce").astype("float64")
+
+        elif op_type == "convert_to_text":
+            if column and column != "all" and column in df.columns:
+                df[column] = df[column].astype(str)
+
+        elif op_type == "convert_to_date":
+            if column and column != "all" and column in df.columns:
+                df[column] = pd.to_datetime(df[column], errors="coerce")
+
+        elif op_type == "extract_year":
+            if column and column != "all" and column in df.columns:
+                df[column + "_year"] = pd.to_datetime(df[column], errors="coerce").dt.year
+
+        elif op_type == "extract_month":
+            if column and column != "all" and column in df.columns:
+                df[column + "_month"] = pd.to_datetime(df[column], errors="coerce").dt.month
+
+        elif op_type == "extract_day":
+            if column and column != "all" and column in df.columns:
+                df[column + "_day"] = pd.to_datetime(df[column], errors="coerce").dt.day
+
+        elif op_type == "extract_quarter":
+            if column and column != "all" and column in df.columns:
+                df[column + "_quarter"] = pd.to_datetime(df[column], errors="coerce").dt.quarter
+
+        elif op_type == "extract_weekday":
+            if column and column != "all" and column in df.columns:
+                df[column + "_weekday"] = pd.to_datetime(df[column], errors="coerce").dt.dayofweek
+
+        elif op_type == "remove_duplicates_keep_first":
+            if column and column != "all" and column in df.columns:
+                df = df.drop_duplicates(subset=[column], keep="first")
+
+        elif op_type == "remove_duplicates_keep_last":
+            if column and column != "all" and column in df.columns:
+                df = df.drop_duplicates(subset=[column], keep="last")
+
+        elif op_type == "replace_category":
+            if column and column != "all" and column in df.columns:
+                old_val = operation.get("old_value", "")
+                new_val = operation.get("new_value", "")
+                if old_val:
+                    df[column] = df[column].replace(old_val, new_val)
+
+        elif op_type == "group_rare":
+            if column and column != "all" and column in df.columns:
+                threshold = operation.get("threshold", 5)
+                value_counts = df[column].value_counts()
+                rare_values = value_counts[value_counts < threshold].index
+                df[column] = df[column].apply(lambda x: "Other" if x in rare_values else x)
+
+        elif op_type == "find_replace":
+            if column and column != "all" and column in df.columns:
+                find_val = operation.get("find", "")
+                replace_val = operation.get("replace", "")
+                if find_val:
+                    df[column] = df[column].astype(str).str.replace(find_val, replace_val, regex=False)
+
+        elif op_type == "remove_special_chars":
+            if column and column != "all" and column in df.columns:
+                df[column] = df[column].astype(str).str.replace(r"[^a-zA-Z0-9\s]", "", regex=True)
         
         # Calculate after state
         after_state = {

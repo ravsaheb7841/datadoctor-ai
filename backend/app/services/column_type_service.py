@@ -5,15 +5,99 @@ from typing import List, Dict, Any, Optional
 class ColumnTypeService:
     """Centralized semantic column type detection service"""
     
+    # Comprehensive operations per semantic type
     ALLOWED_METHODS = {
-        "numeric": ["mean", "median", "mode", "custom", "drop_rows", "forward_fill", "backward_fill"],
-        "categorical": ["mode", "custom", "drop_rows", "forward_fill", "backward_fill"],
-        "text": ["custom", "drop_rows", "forward_fill", "backward_fill"],
-        "datetime": ["custom", "drop_rows", "forward_fill", "backward_fill"],
-        "identifier": ["custom", "drop_rows", "forward_fill", "backward_fill"],
-        "boolean": ["mode", "custom", "drop_rows", "forward_fill", "backward_fill"],
-        "ordinal": ["median", "mode", "custom", "drop_rows", "forward_fill", "backward_fill"],
-        "binary": ["mode", "custom", "drop_rows", "forward_fill", "backward_fill"],
+        "numeric": [
+            "mean", "median", "mode", "custom_value", "forward_fill", "backward_fill", "drop_rows",
+            "round", "absolute_value", "remove_commas", "remove_currency",
+            "remove_outliers", "cap_outliers", "replace_median",
+            "convert_to_int", "convert_to_float", "convert_to_text"
+        ],
+        "categorical": [
+            "mode", "custom_value", "forward_fill", "backward_fill", "drop_rows",
+            "normalize_categories", "replace_category", "group_rare",
+            "trim_whitespace", "remove_extra_spaces", "lowercase", "uppercase", "title_case",
+            "find_replace", "remove_special_chars"
+        ],
+        "text": [
+            "custom_value", "forward_fill", "backward_fill", "drop_rows",
+            "trim_whitespace", "remove_extra_spaces", "lowercase", "uppercase", "title_case",
+            "find_replace", "remove_special_chars"
+        ],
+        "datetime": [
+            "custom_value", "forward_fill", "backward_fill", "drop_rows",
+            "convert_to_date", "extract_year", "extract_month", "extract_day", "extract_quarter", "extract_weekday"
+        ],
+        "identifier": [
+            "custom_value", "forward_fill", "backward_fill", "drop_rows",
+            "remove_duplicates_keep_first", "remove_duplicates_keep_last"
+        ],
+        "boolean": [
+            "mode", "custom_value", "forward_fill", "backward_fill", "drop_rows"
+        ],
+        "ordinal": [
+            "median", "mode", "custom_value", "forward_fill", "backward_fill", "drop_rows",
+            "replace_category", "group_rare"
+        ],
+        "binary": [
+            "mode", "custom_value", "forward_fill", "backward_fill", "drop_rows"
+        ],
+    }
+
+    OPERATION_GROUPS = {
+        "missing_values": {
+            "label": "Missing Values",
+            "methods": ["mean", "median", "mode", "custom_value", "forward_fill", "backward_fill", "drop_rows"]
+        },
+        "text_cleaning": {
+            "label": "Text Cleaning",
+            "methods": ["trim_whitespace", "remove_extra_spaces", "lowercase", "uppercase", "title_case", "find_replace", "remove_special_chars"]
+        },
+        "categorical": {
+            "label": "Categorical",
+            "methods": ["normalize_categories", "replace_category", "group_rare"]
+        },
+        "numeric": {
+            "label": "Numeric",
+            "methods": ["round", "absolute_value", "remove_commas", "remove_currency"]
+        },
+        "outliers": {
+            "label": "Outliers",
+            "methods": ["remove_outliers", "cap_outliers", "replace_median"]
+        },
+        "datetime": {
+            "label": "Date & Time",
+            "methods": ["convert_to_date", "extract_year", "extract_month", "extract_day", "extract_quarter", "extract_weekday"]
+        },
+        "duplicates": {
+            "label": "Duplicates",
+            "methods": ["remove_duplicates_keep_first", "remove_duplicates_keep_last"]
+        },
+        "data_type": {
+            "label": "Data Type",
+            "methods": ["convert_to_int", "convert_to_float", "convert_to_text", "convert_to_date"]
+        }
+    }
+
+    OPERATION_LABELS = {
+        "mean": "Mean", "median": "Median", "mode": "Mode",
+        "custom_value": "Custom Value", "forward_fill": "Forward Fill", "backward_fill": "Backward Fill",
+        "drop_rows": "Drop Rows",
+        "trim_whitespace": "Trim Whitespace", "remove_extra_spaces": "Remove Extra Spaces",
+        "lowercase": "lowercase", "uppercase": "UPPERCASE", "title_case": "Title Case",
+        "find_replace": "Find & Replace", "remove_special_chars": "Remove Special Characters",
+        "normalize_categories": "Normalize Categories", "replace_category": "Replace Category",
+        "group_rare": "Group Rare to Other",
+        "round": "Round", "absolute_value": "Absolute Value",
+        "remove_commas": "Remove Commas", "remove_currency": "Remove Currency Symbols",
+        "remove_outliers": "Remove Outliers", "cap_outliers": "Cap/Winsorize",
+        "replace_median": "Replace with Median",
+        "convert_to_date": "Convert to Date",
+        "extract_year": "Extract Year", "extract_month": "Extract Month", "extract_day": "Extract Day",
+        "extract_quarter": "Extract Quarter", "extract_weekday": "Extract Day of Week",
+        "remove_duplicates_keep_first": "Keep First", "remove_duplicates_keep_last": "Keep Last",
+        "convert_to_int": "Float to Integer", "convert_to_float": "Integer to Float",
+        "convert_to_text": "Numeric to Text",
     }
     
     TYPE_LABELS = {
@@ -323,6 +407,11 @@ class ColumnTypeService:
         
         return False
     
+    @staticmethod
+    def get_operation_label(method: str) -> str:
+        """Get human-readable label for operation"""
+        return ColumnTypeService.OPERATION_LABELS.get(method, method.replace("_", " ").title())
+
     @staticmethod
     def get_allowed_methods(semantic_type: str) -> List[str]:
         """Get allowed cleaning methods for a semantic type"""

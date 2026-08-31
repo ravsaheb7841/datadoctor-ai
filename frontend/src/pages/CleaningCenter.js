@@ -7,14 +7,59 @@ import {
 } from 'lucide-react';
 import LoadingState from '../components/LoadingState';
 
-const METHOD_OPTIONS = {
-  mean: { label: 'Mean (Average)', icon: TrendingUp },
-  median: { label: 'Median (Middle)', icon: Filter },
-  mode: { label: 'Mode (Most Common)', icon: Database },
-  forward_fill: { label: 'Forward Fill (Previous)', icon: ChevronDown },
-  backward_fill: { label: 'Backward Fill (Next)', icon: ChevronDown },
-  drop_rows: { label: 'Drop Rows', icon: Trash2 },
-  custom: { label: 'Custom Value', icon: Edit3 },
+const OPERATION_GROUPS = {
+  missing_values: {
+    label: 'Missing Values',
+    methods: ['mean', 'median', 'mode', 'custom_value', 'forward_fill', 'backward_fill', 'drop_rows'],
+  },
+  text_cleaning: {
+    label: 'Text Cleaning',
+    methods: ['trim_whitespace', 'remove_extra_spaces', 'lowercase', 'uppercase', 'title_case', 'find_replace', 'remove_special_chars'],
+  },
+  categorical: {
+    label: 'Categorical',
+    methods: ['normalize_categories', 'replace_category', 'group_rare'],
+  },
+  numeric_ops: {
+    label: 'Numeric',
+    methods: ['round', 'absolute_value', 'remove_commas', 'remove_currency'],
+  },
+  outliers: {
+    label: 'Outliers',
+    methods: ['remove_outliers', 'cap_outliers', 'replace_median'],
+  },
+  datetime: {
+    label: 'Date & Time',
+    methods: ['convert_to_date', 'extract_year', 'extract_month', 'extract_day', 'extract_quarter', 'extract_weekday'],
+  },
+  duplicates: {
+    label: 'Duplicates',
+    methods: ['remove_duplicates_keep_first', 'remove_duplicates_keep_last'],
+  },
+  data_type: {
+    label: 'Data Type',
+    methods: ['convert_to_int', 'convert_to_float', 'convert_to_text', 'convert_to_date'],
+  },
+};
+const OPERATION_LABELS = {
+  mean: 'Mean', median: 'Median', mode: 'Mode',
+  custom_value: 'Custom Value', forward_fill: 'Forward Fill', backward_fill: 'Backward Fill',
+  drop_rows: 'Drop Rows',
+  trim_whitespace: 'Trim Whitespace', remove_extra_spaces: 'Remove Extra Spaces',
+  lowercase: 'lowercase', uppercase: 'UPPERCASE', title_case: 'Title Case',
+  find_replace: 'Find & Replace', remove_special_chars: 'Remove Special Characters',
+  normalize_categories: 'Normalize Categories', replace_category: 'Replace Category',
+  group_rare: 'Group Rare to Other',
+  round: 'Round', absolute_value: 'Absolute Value',
+  remove_commas: 'Remove Commas', remove_currency: 'Remove Currency Symbols',
+  remove_outliers: 'Remove Outliers', cap_outliers: 'Cap/Winsorize',
+  replace_median: 'Replace with Median',
+  convert_to_date: 'Convert to Date',
+  extract_year: 'Extract Year', extract_month: 'Extract Month', extract_day: 'Extract Day',
+  extract_quarter: 'Extract Quarter', extract_weekday: 'Extract Day of Week',
+  remove_duplicates_keep_first: 'Keep First', remove_duplicates_keep_last: 'Keep Last',
+  convert_to_int: 'Float to Integer', convert_to_float: 'Integer to Float',
+  convert_to_text: 'Numeric to Text',
 };
 
 const TYPE_COLORS = {
@@ -108,17 +153,59 @@ const CleaningCenter = () => {
 
   const getAllowedMethods = (columnName) => {
     const type = getColumnType(columnName);
-    const methodsMap = {
-      numeric: ['mean', 'median', 'mode', 'forward_fill', 'backward_fill', 'drop_rows', 'custom'],
-      categorical: ['mode', 'forward_fill', 'backward_fill', 'drop_rows', 'custom'],
-      text: ['forward_fill', 'backward_fill', 'drop_rows', 'custom'],
-      datetime: ['forward_fill', 'backward_fill', 'drop_rows', 'custom'],
-      identifier: ['forward_fill', 'backward_fill', 'drop_rows', 'custom'],
-      boolean: ['mode', 'forward_fill', 'backward_fill', 'drop_rows', 'custom'],
-      ordinal: ['median', 'mode', 'forward_fill', 'backward_fill', 'drop_rows', 'custom'],
-      binary: ['mode', 'forward_fill', 'backward_fill', 'drop_rows', 'custom'],
+
+    const typeMethodMap = {
+      numeric: [
+        'mean', 'median', 'mode', 'custom_value', 'forward_fill', 'backward_fill', 'drop_rows',
+        'round', 'absolute_value', 'remove_commas', 'remove_currency',
+        'remove_outliers', 'cap_outliers', 'replace_median',
+        'convert_to_int', 'convert_to_float', 'convert_to_text'
+      ],
+
+      categorical: [
+        'mode', 'custom_value', 'forward_fill', 'backward_fill', 'drop_rows',
+        'trim_whitespace', 'remove_extra_spaces',
+        'lowercase', 'uppercase', 'title_case',
+        'find_replace', 'remove_special_chars',
+        'normalize_categories', 'replace_category', 'group_rare'
+      ],
+
+      text: [
+        'custom_value', 'forward_fill', 'backward_fill', 'drop_rows',
+        'trim_whitespace', 'remove_extra_spaces',
+        'lowercase', 'uppercase', 'title_case',
+        'find_replace', 'remove_special_chars'
+      ],
+
+      datetime: [
+        'custom_value', 'forward_fill', 'backward_fill', 'drop_rows',
+        'convert_to_date',
+        'extract_year', 'extract_month', 'extract_day',
+        'extract_quarter', 'extract_weekday'
+      ],
+
+      identifier: [
+        'custom_value', 'forward_fill', 'backward_fill', 'drop_rows',
+        'remove_duplicates_keep_first', 'remove_duplicates_keep_last'
+      ],
+
+      boolean: [
+        'mode', 'custom_value', 'forward_fill', 'backward_fill', 'drop_rows'
+      ],
+
+      ordinal: [
+        'median', 'mode', 'custom_value',
+        'forward_fill', 'backward_fill', 'drop_rows',
+        'replace_category', 'group_rare'
+      ],
+
+      binary: [
+        'mode', 'custom_value',
+        'forward_fill', 'backward_fill', 'drop_rows'
+      ],
     };
-    return methodsMap[type] || ['drop_rows', 'custom'];
+
+    return typeMethodMap[type] || ['drop_rows', 'custom_value'];
   };
 
   const getDefaultMethod = (columnName) => {
@@ -162,7 +249,7 @@ const CleaningCenter = () => {
       case 'missing_values':
         operation.type = 'fill_missing';
         operation.method = selectedOp;
-        if (selectedOp === 'custom') {
+        if (selectedOp === 'custom_value') {
           const customVal = customValues[issueKey] || '';
           if (!customVal) {
             setError('Please enter a custom value');
@@ -424,14 +511,24 @@ const CleaningCenter = () => {
                             className="w-full sm:w-72 px-3.5 py-2.5 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500 transition-all"
                             disabled={cleaning}
                           >
-                            {allowedMethods.map(method => (
-                              <option key={method} value={method}>
-                                {METHOD_OPTIONS[method]?.label || method}
-                              </option>
-                            ))}
+                            {Object.entries(OPERATION_GROUPS).map(([groupKey, group]) => {
+                            const availableMethods = group.methods.filter(m =>
+                              !allowedMethods?.length || allowedMethods.includes(m)
+                            );
+                            if (availableMethods.length === 0) return null;
+                            return (
+                              <optgroup key={groupKey} label={group.label}>
+                                {availableMethods.map(method => (
+                                  <option key={method} value={method}>
+                                    {OPERATION_LABELS[method] || method}
+                                  </option>
+                                ))}
+                              </optgroup>
+                            );
+                          })}
                           </select>
 
-                          {selectedOp === 'custom' && (
+                          {selectedOp === 'custom_value' && (
                             <div className="mt-3">
                               <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
                                 Enter Custom Value
