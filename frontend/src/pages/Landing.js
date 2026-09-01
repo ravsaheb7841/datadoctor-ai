@@ -256,71 +256,116 @@ const Landing = () => {
       </div>
 
       {/* Footer */}
-      <footer className="bg-gray-950 text-gray-400">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-10 mb-12">
-            {/* Brand Section */}
-            <div className="lg:col-span-2">
-              <div className="flex items-center mb-4">
-                <div className="w-9 h-9 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center mr-3">
-                  <Stethoscope className="w-5 h-5 text-white" />
+      <footer className="border-t border-gray-200 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+          {/* Main Footer */}
+          <div className="py-10 sm:py-12">
+            <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-8">
+
+              {/* Brand */}
+              <div className="max-w-sm">
+                <div className="flex items-center mb-3">
+                  <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-md shadow-blue-200">
+                    <Stethoscope className="w-5 h-5 text-white" />
+                  </div>
+
+                  <span className="ml-3 text-xl font-bold text-gray-900">
+                    DataDoctor AI
+                  </span>
                 </div>
-                <span className="text-white font-bold text-lg">DataDoctor AI</span>
+
+                <p className="text-sm text-gray-500 leading-relaxed">
+                  Diagnose, clean, and understand your data with AI-powered
+                  data quality analysis and intelligent insights.
+                </p>
               </div>
-              <p className="text-sm text-gray-400 leading-relaxed mb-6 max-w-sm">
-                AI-powered data quality and analysis platform. Diagnose, clean, and understand your data with confidence.
-              </p>
-              {/* Social Links */}
+
+              {/* Footer Links */}
+              <div className="flex flex-wrap items-center gap-x-8 gap-y-4 text-sm">
+                <button
+                  onClick={() => navigate('/login')}
+                  className="text-gray-600 hover:text-blue-600 transition-colors"
+                >
+                  Login
+                </button>
+
+                <button
+                  onClick={() => navigate('/register')}
+                  className="text-gray-600 hover:text-blue-600 transition-colors"
+                >
+                  Get Started
+                </button>
+
+                <button
+                  onClick={() => navigate('/demo')}
+                  className="text-gray-600 hover:text-blue-600 transition-colors"
+                >
+                  Try Demo
+                </button>
+              </div>
+
+              {/* Social / CTA */}
               <div className="flex items-center gap-3">
-                {socialLinks.map((social, i) => {
-                  const Icon = social.icon;
-                  return (
-                    <a
-                      key={i}
-                      href={social.href}
-                      aria-label={social.label}
-                      title={social.label}
-                      className="w-10 h-10 rounded-lg bg-gray-800 hover:bg-blue-600 flex items-center justify-center transition-colors duration-200"
-                    >
-                      <Icon className="w-4 h-4" />
-                    </a>
-                  );
-                })}
+
+                <a
+                  href="https://github.com/ravsaheb7841"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-10 h-10 rounded-xl border border-gray-200 bg-white flex items-center justify-center text-gray-500 hover:text-gray-900 hover:border-gray-300 hover:shadow-sm transition-all"
+                  aria-label="GitHub"
+                >
+                  <svg
+                    className="w-5 h-5"
+                    fill="currentColor"
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                  >
+                    <path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.44 9.8 8.21 11.39.6.11.82-.26.82-.58 0-.28-.01-1.02-.02-2-3.34.73-4.04-1.61-4.04-1.61-.55-1.39-1.33-1.76-1.33-1.76-1.09-.74.08-.73.08-.73 1.2.08 1.84 1.24 1.84 1.24 1.07 1.83 2.8 1.3 3.49.99.11-.78.42-1.3.76-1.6-2.67-.3-5.47-1.33-5.47-5.93 0-1.31.47-2.38 1.24-3.22-.12-.3-.54-1.52.12-3.18 0 0 1.01-.32 3.3 1.23a11.5 11.5 0 0 1 6 0c2.29-1.55 3.3-1.23 3.3-1.23.66 1.66.24 2.88.12 3.18.77.84 1.24 1.91 1.24 3.22 0 4.61-2.81 5.62-5.48 5.92.43.37.81 1.1.81 2.22 0 1.6-.01 2.89-.01 3.29 0 .32.22.7.82.58A12.01 12.01 0 0 0 24 12c0-6.63-5.37-12-12-12z" />
+                  </svg>
+                </a>
+
+                <a
+                  href="https://www.linkedin.com/in/ravsaheb-bansode/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-10 h-10 rounded-xl border border-gray-200 bg-white flex items-center justify-center text-gray-500 hover:text-blue-600 hover:border-blue-200 hover:shadow-sm transition-all"
+                  aria-label="LinkedIn"
+                >
+                  <svg
+                    className="w-5 h-5"
+                    fill="currentColor"
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                  >
+                    <path d="M20.45 20.45h-3.55v-5.57c0-1.33-.02-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.35V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.56V9h3.56v11.45zM22.23 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.23.79 24 1.77 24h20.46C23.21 24 24 23.23 24 22.27V1.73C24 .77 23.21 0 22.23 0z" />
+                  </svg>
+                </a>
+
+                <a
+                  href="mailto:hello@datadoctor.ai"
+                  className="w-10 h-10 rounded-xl border border-gray-200 bg-white flex items-center justify-center text-gray-500 hover:text-blue-600 hover:border-blue-200 hover:shadow-sm transition-all"
+                  aria-label="Email"
+                >
+                  <Mail className="w-5 h-5" />
+                </a>
+
               </div>
             </div>
-
-            {/* Link Columns */}
-            {Object.entries(footerLinks).map(([category, links]) => (
-              <div key={category}>
-                <h3 className="text-white font-semibold text-sm mb-4 uppercase tracking-wider">
-                  {category}
-                </h3>
-                <ul className="space-y-3">
-                  {links.map((link) => (
-                    <li key={link}>
-                      <a
-                        href="#"
-                        className="text-sm text-gray-400 hover:text-blue-400 transition-colors duration-200"
-                      >
-                        {link}
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
           </div>
 
           {/* Bottom Bar */}
-          <div className="border-t border-gray-800 pt-8">
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-              <p className="text-sm text-gray-400">
-                © 2026 DataDoctor AI. All rights reserved.
-              </p>
-              <p className="text-sm text-gray-500 flex items-center">
-                Made with <Heart className="w-4 h-4 mx-1 text-red-500 fill-current" /> for data teams
-              </p>
+          <div className="border-t border-gray-100 py-5 flex flex-col sm:flex-row items-center justify-between gap-3">
+
+            <p className="text-sm text-gray-500">
+              © {new Date().getFullYear()} DataDoctor AI. All rights reserved.
+            </p>
+
+            <div className="flex items-center gap-2 text-sm text-gray-400">
+              <span className="w-2 h-2 rounded-full bg-green-500"></span>
+              <span>AI-powered data quality platform</span>
             </div>
+
           </div>
         </div>
       </footer>
