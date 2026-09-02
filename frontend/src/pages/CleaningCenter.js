@@ -2,12 +2,7 @@
 import { useParams } from 'react-router-dom';
 import { AuthContext } from '../App';
 import {
-  AlertTriangle,
-  CheckCircle2,
-  Download,
-  Wand2,
-  RefreshCw,
-  Activity
+  AlertTriangle, CheckCircle2, Download, Wand2, RefreshCw, Activity
 } from 'lucide-react';
 import LoadingState from '../components/LoadingState';
 
@@ -34,7 +29,7 @@ const OPERATION_GROUPS = {
       'forward_fill',
       'backward_fill',
       'drop_rows'
-    ]
+    ],
   },
 
   text_cleaning: {
@@ -47,7 +42,7 @@ const OPERATION_GROUPS = {
       'title_case',
       'find_replace',
       'remove_special_chars'
-    ]
+    ],
   },
 
   categorical: {
@@ -57,7 +52,7 @@ const OPERATION_GROUPS = {
       'replace_category',
       'merge_categories',
       'group_rare'
-    ]
+    ],
   },
 
   numeric: {
@@ -68,7 +63,7 @@ const OPERATION_GROUPS = {
       'remove_currency',
       'round',
       'absolute_value'
-    ]
+    ],
   },
 
   outliers: {
@@ -79,7 +74,7 @@ const OPERATION_GROUPS = {
       'remove_outliers',
       'cap_outliers',
       'replace_median'
-    ]
+    ],
   },
 
   datetime: {
@@ -91,7 +86,7 @@ const OPERATION_GROUPS = {
       'extract_day',
       'extract_quarter',
       'extract_weekday'
-    ]
+    ],
   },
 
   duplicates: {
@@ -99,7 +94,7 @@ const OPERATION_GROUPS = {
     methods: [
       'remove_duplicates_keep_first',
       'remove_duplicates_keep_last'
-    ]
+    ],
   },
 
   data_type: {
@@ -109,60 +104,20 @@ const OPERATION_GROUPS = {
       'numeric_to_text',
       'text_to_date',
       'int_to_float',
-      'float_to_int',
-      'convert_to_text'
-    ]
-  }
+      'float_to_int'
+    ],
+  },
 };
 
 const COLUMN_GROUP_KEYS = {
-  numeric: [
-    'missing_values',
-    'numeric',
-    'outliers',
-    'data_type'
-  ],
-
-  text: [
-    'missing_values',
-    'text_cleaning',
-    'categorical',
-    'data_type'
-  ],
-
-  categorical: [
-    'missing_values',
-    'text_cleaning',
-    'categorical'
-  ],
-
-  datetime: [
-    'missing_values',
-    'datetime',
-    'data_type'
-  ],
-
-  identifier: [
-    'missing_values',
-    'text_cleaning',
-    'duplicates'
-  ],
-
-  boolean: [
-    'missing_values',
-    'data_type'
-  ],
-
-  ordinal: [
-    'missing_values',
-    'categorical',
-    'data_type'
-  ],
-
-  binary: [
-    'missing_values',
-    'categorical'
-  ]
+  numeric: ['missing_values', 'numeric', 'outliers', 'data_type'],
+  text: ['missing_values', 'text_cleaning', 'categorical', 'data_type'],
+  categorical: ['missing_values', 'text_cleaning', 'categorical'],
+  datetime: ['missing_values', 'datetime', 'data_type'],
+  identifier: ['missing_values', 'text_cleaning', 'duplicates'],
+  boolean: ['missing_values', 'data_type'],
+  ordinal: ['missing_values', 'categorical', 'data_type'],
+  binary: ['missing_values', 'categorical'],
 };
 
 const OPERATION_LABELS = {
@@ -214,7 +169,6 @@ const OPERATION_LABELS = {
   text_to_date: 'Text to Date',
   int_to_float: 'Integer to Float',
   float_to_int: 'Float to Integer',
-  convert_to_text: 'Convert to Text'
 };
 
 const TYPE_METHOD_MAP = {
@@ -264,8 +218,7 @@ const TYPE_METHOD_MAP = {
     'numeric_to_text',
     'text_to_date',
     'int_to_float',
-    'float_to_int',
-    'convert_to_text'
+    'float_to_int'
   ],
 
   categorical: [
@@ -307,10 +260,11 @@ const TYPE_METHOD_MAP = {
   ],
 
   identifier: [
+    'mode',
     'custom_value',
-    'drop_rows',
     'forward_fill',
     'backward_fill',
+    'drop_rows',
     'trim_whitespace',
     'remove_extra_spaces',
     'lowercase',
@@ -363,7 +317,7 @@ const TYPE_METHOD_MAP = {
     'replace_category',
     'merge_categories',
     'group_rare'
-  ]
+  ],
 };
 
 const TYPE_COLORS = {
@@ -389,7 +343,7 @@ const TYPE_COLORS = {
     'bg-pink-100 text-pink-700 dark:bg-pink-900/40 dark:text-pink-300',
 
   binary:
-    'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300'
+    'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300',
 };
 
 const CleaningCenter = () => {
@@ -431,9 +385,7 @@ const CleaningCenter = () => {
       ]);
 
       if (!issuesRes.ok) {
-        throw new Error(
-          `Failed to fetch issues: ${issuesRes.status}`
-        );
+        throw new Error(`Failed to fetch issues: ${issuesRes.status}`);
       }
 
       const issuesData = await issuesRes.json();
@@ -469,8 +421,6 @@ const CleaningCenter = () => {
             semantic_type: col.semantic_type,
             label: col.semantic_type_label,
             methods: col.suggested_methods,
-            recommended_operations:
-              col.recommended_operations,
             dtype: col.dtype
           };
         });
@@ -478,48 +428,35 @@ const CleaningCenter = () => {
         setColumnTypes(typesMap);
       }
     } catch (err) {
-      console.error(
-        'Failed to fetch column types:',
-        err
-      );
+      console.error('Failed to fetch column types:', err);
     }
   }, [id, token]);
 
   useEffect(() => {
     fetchData();
     fetchColumnTypes();
-  }, [
-    fetchData,
-    fetchColumnTypes,
-    refreshKey
-  ]);
+  }, [fetchData, fetchColumnTypes, refreshKey]);
 
   const getColumnType = (columnName) => {
     if (userOverrides[columnName]) {
       return userOverrides[columnName];
     }
 
-    return (
-      columnTypes[columnName]?.semantic_type ||
-      'numeric'
-    );
+    return columnTypes[columnName]?.semantic_type || 'numeric';
   };
 
   const getAllowedMethods = (columnName) => {
     if (userOverrides[columnName]) {
       const type = userOverrides[columnName];
 
-      return (
-        TYPE_METHOD_MAP[type] || [
-          'drop_rows',
-          'custom_value'
-        ]
-      );
+      return TYPE_METHOD_MAP[type] || [
+        'drop_rows',
+        'custom_value'
+      ];
     }
 
     const rec =
-      columnTypes[columnName]
-        ?.recommended_operations ||
+      columnTypes[columnName]?.recommended_operations ||
       columnTypes[columnName]?.methods;
 
     if (rec && rec.length) {
@@ -528,12 +465,10 @@ const CleaningCenter = () => {
 
     const type = getColumnType(columnName);
 
-    return (
-      TYPE_METHOD_MAP[type] || [
-        'drop_rows',
-        'custom_value'
-      ]
-    );
+    return TYPE_METHOD_MAP[type] || [
+      'drop_rows',
+      'custom_value'
+    ];
   };
 
   const getMethodsForIssue = (issue) => {
@@ -633,21 +568,21 @@ const CleaningCenter = () => {
           'forward_fill',
           'backward_fill',
           'drop_rows'
-        ]
+        ],
       },
 
       duplicates: {
         default: [
           'remove_duplicates_keep_first',
           'remove_duplicates_keep_last'
-        ]
+        ],
       },
 
       duplicate_ids: {
         default: [
           'remove_duplicates_keep_first',
           'remove_duplicates_keep_last'
-        ]
+        ],
       },
 
       outliers: {
@@ -663,7 +598,7 @@ const CleaningCenter = () => {
           'remove_outliers',
           'cap_outliers',
           'replace_median'
-        ]
+        ],
       },
 
       category_inconsistency: {
@@ -672,7 +607,7 @@ const CleaningCenter = () => {
           'replace_category',
           'merge_categories',
           'group_rare'
-        ]
+        ],
       },
 
       type_mismatch: {
@@ -702,7 +637,7 @@ const CleaningCenter = () => {
           'text_to_date',
           'int_to_float',
           'float_to_int'
-        ]
+        ],
       },
 
       invalid_values: {
@@ -729,8 +664,8 @@ const CleaningCenter = () => {
           'custom_value',
           'drop_rows',
           'find_replace'
-        ]
-      }
+        ],
+      },
     };
 
     const byIssue = matrix[issueType];
@@ -759,52 +694,31 @@ const CleaningCenter = () => {
         datetime: 'forward_fill',
         boolean: 'mode',
         ordinal: 'median',
-        binary: 'mode'
+        binary: 'mode',
       },
 
-      duplicates:
-        'remove_duplicates_keep_first',
-
-      duplicate_ids:
-        'remove_duplicates_keep_first',
-
+      duplicates: 'remove_duplicates_keep_first',
+      duplicate_ids: 'remove_duplicates_keep_first',
       outliers: 'cap_outliers',
-
-      category_inconsistency:
-        'normalize_categories',
-
-      type_mismatch:
-        'convert_to_date',
-
-      invalid_values:
-        'custom_value'
+      category_inconsistency: 'normalize_categories',
+      type_mismatch: 'convert_to_date',
+      invalid_values: 'custom_value',
     };
 
-    let preferred =
-      preferredByIssue[issue.type];
+    let preferred = preferredByIssue[issue.type];
 
-    if (
-      preferred &&
-      typeof preferred === 'object'
-    ) {
+    if (preferred && typeof preferred === 'object') {
       preferred = preferred[type];
     }
 
-    if (
-      preferred &&
-      methods.includes(preferred)
-    ) {
+    if (preferred && methods.includes(preferred)) {
       return preferred;
     }
 
     return methods[0] || 'drop_rows';
   };
 
-  const updateExtra = (
-    issueKey,
-    field,
-    value
-  ) => {
+  const updateExtra = (issueKey, field, value) => {
     setExtraParams((prev) => ({
       ...prev,
       [issueKey]: {
@@ -814,10 +728,7 @@ const CleaningCenter = () => {
     }));
   };
 
-  const handleTypeOverride = (
-    columnName,
-    newType
-  ) => {
+  const handleTypeOverride = (columnName, newType) => {
     setUserOverrides((prev) => ({
       ...prev,
       [columnName]: newType
@@ -834,24 +745,15 @@ const CleaningCenter = () => {
 
       return next;
     });
-
-    setTypePickerOpen((prev) => ({
-      ...prev,
-      [columnName]: false
-    }));
   };
 
-  const handleClean = async (
-    issue,
-    index
-  ) => {
+  const handleClean = async (issue, index) => {
     setCleaning(true);
     setCleaningIssueId(index);
     setMessage('');
     setError('');
 
-    const issueKey =
-      `${issue.type}-${issue.column}-${index}`;
+    const issueKey = `${issue.type}-${issue.column}-${index}`;
 
     let selectedOp =
       selectedOperations[issueKey] ||
@@ -865,31 +767,24 @@ const CleaningCenter = () => {
       selectedOp = 'remove_error_rows';
     }
 
-    const extra =
-      extraParams[issueKey] || {};
+    const extra = extraParams[issueKey] || {};
 
     const operation = {
       column: issue.column,
-      method: selectedOp
+      method: selectedOp,
     };
 
-    if (
-      FILL_METHODS.includes(selectedOp)
-    ) {
+    if (FILL_METHODS.includes(selectedOp)) {
       operation.type = 'fill_missing';
 
-      if (
-        selectedOp === 'custom_value'
-      ) {
+      if (selectedOp === 'custom_value') {
         const customVal =
           customValues[issueKey] ||
           extra.value ||
           '';
 
         if (!customVal) {
-          setError(
-            'Please enter a custom value'
-          );
+          setError('Please enter a custom value');
           setCleaning(false);
           setCleaningIssueId(null);
           return;
@@ -903,49 +798,35 @@ const CleaningCenter = () => {
 
     if (selectedOp === 'find_replace') {
       if (!extra.find) {
-        setError(
-          'Please enter a value to find'
-        );
+        setError('Please enter a value to find');
         setCleaning(false);
         setCleaningIssueId(null);
         return;
       }
 
       operation.find = extra.find;
-      operation.replace =
-        extra.replace || '';
+      operation.replace = extra.replace || '';
     }
 
-    if (
-      selectedOp === 'replace_category'
-    ) {
+    if (selectedOp === 'replace_category') {
       if (!extra.old_value) {
-        setError(
-          'Please enter the category to replace'
-        );
+        setError('Please enter the category to replace');
         setCleaning(false);
         setCleaningIssueId(null);
         return;
       }
 
-      operation.old_value =
-        extra.old_value;
-
-      operation.new_value =
-        extra.new_value || '';
+      operation.old_value = extra.old_value;
+      operation.new_value = extra.new_value || '';
     }
 
     if (selectedOp === 'group_rare') {
-      operation.threshold =
-        Number(extra.threshold || 5);
+      operation.threshold = Number(extra.threshold || 5);
     }
 
-    if (
-      selectedOp === 'merge_categories'
-    ) {
+    if (selectedOp === 'merge_categories') {
       if (
-        !(extra.from_values ||
-          extra.old_value) ||
+        !(extra.from_values || extra.old_value) ||
         !extra.new_value
       ) {
         setError(
@@ -961,24 +842,18 @@ const CleaningCenter = () => {
         extra.from_values ||
         extra.old_value;
 
-      operation.new_value =
-        extra.new_value;
+      operation.new_value = extra.new_value;
     }
 
-    if (
-      selectedOp === 'rename_column'
-    ) {
+    if (selectedOp === 'rename_column') {
       if (!extra.new_name) {
-        setError(
-          'Please enter a new column name'
-        );
+        setError('Please enter a new column name');
         setCleaning(false);
         setCleaningIssueId(null);
         return;
       }
 
-      operation.new_name =
-        extra.new_name;
+      operation.new_name = extra.new_name;
     }
 
     try {
@@ -987,26 +862,21 @@ const CleaningCenter = () => {
         {
           method: 'POST',
           headers: {
-            Authorization:
-              `Bearer ${token}`,
-            'Content-Type':
-              'application/json'
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json'
           },
           body: JSON.stringify(operation)
         }
       );
 
-      const data =
-        await response.json();
+      const data = await response.json();
 
       if (response.ok) {
         setMessage(
           'Cleaning operation applied successfully'
         );
 
-        setRefreshKey(
-          (prev) => prev + 1
-        );
+        setRefreshKey((prev) => prev + 1);
 
         await fetchData();
       } else {
@@ -1016,11 +886,7 @@ const CleaningCenter = () => {
         );
       }
     } catch (err) {
-      console.error(
-        'Cleaning failed:',
-        err
-      );
-
+      console.error('Cleaning failed:', err);
       setError(
         'Network error. Please try again.'
       );
@@ -1034,20 +900,17 @@ const CleaningCenter = () => {
     setDownloading(true);
 
     try {
-      const response =
-        await fetch(
-          `${API_URL}/api/datasets/${id}/download`,
-          {
-            headers: {
-              Authorization:
-                `Bearer ${token}`
-            }
+      const response = await fetch(
+        `${API_URL}/api/datasets/${id}/download`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
           }
-        );
+        }
+      );
 
       if (response.ok) {
-        const blob =
-          await response.blob();
+        const blob = await response.blob();
 
         const url =
           window.URL.createObjectURL(blob);
@@ -1071,10 +934,6 @@ const CleaningCenter = () => {
         setMessage(
           'Cleaned dataset downloaded successfully'
         );
-      } else {
-        setError(
-          'Failed to download cleaned dataset'
-        );
       }
     } catch (err) {
       setError(
@@ -1083,87 +942,6 @@ const CleaningCenter = () => {
     } finally {
       setDownloading(false);
     }
-  };
-
-  const getSamples = (issue) => {
-    const samples =
-      issue.samples ||
-      issue.sample_values ||
-      issue.examples;
-
-    if (!samples) {
-      return [];
-    }
-
-    if (Array.isArray(samples)) {
-      return samples;
-    }
-
-    if (typeof samples === 'string') {
-      return samples
-        .split(',')
-        .map((item) => item.trim())
-        .filter(Boolean);
-    }
-
-    return [];
-  };
-
-  const renderIssueBadges = (issue) => {
-    const badges = [];
-
-    const missingCount =
-      issue.missing_count ??
-      issue.missing_ids ??
-      issue.missing_values_count;
-
-    const duplicateCount =
-      issue.duplicate_count ??
-      issue.duplicate_ids ??
-      issue.duplicates_count;
-
-    const unexpected =
-      issue.unexpected_formatting ??
-      issue.unexpected_format ??
-      issue.formatting_issue;
-
-    if (
-      missingCount !== undefined &&
-      missingCount !== null
-    ) {
-      const percentage =
-        issue.missing_percentage ??
-        issue.percentage_affected;
-
-      badges.push({
-        label:
-          `Missing IDs (${missingCount}${percentage !== undefined ? `, ${percentage}%` : ''})`,
-        type: 'warning'
-      });
-    }
-
-    if (
-      duplicateCount !== undefined &&
-      duplicateCount !== null
-    ) {
-      badges.push({
-        label:
-          `Duplicate IDs (${duplicateCount})`,
-        type: 'warning'
-      });
-    }
-
-    if (unexpected) {
-      badges.push({
-        label:
-          typeof unexpected === 'string'
-            ? unexpected
-            : 'Unexpected formatting',
-        type: 'warning'
-      });
-    }
-
-    return badges;
   };
 
   if (loading) {
@@ -1185,22 +963,27 @@ const CleaningCenter = () => {
       'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-400',
 
     low:
-      'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-400'
+      'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-400',
   };
 
   return (
     <div className="animate-fade-in space-y-8">
+
+      {/* Hero Header */}
       <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-700 via-teal-800 to-cyan-900 p-6 sm:p-8 text-white shadow-xl">
+
         <div className="absolute top-0 right-0 w-72 h-72 bg-teal-400/20 rounded-full -translate-y-1/2 translate-x-1/3 blur-3xl"></div>
 
         <div className="absolute bottom-0 left-0 w-48 h-48 bg-emerald-300/10 rounded-full translate-y-1/3 -translate-x-1/4 blur-2xl"></div>
 
         <div className="relative z-10 flex items-start gap-4">
+
           <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center shadow-lg shadow-emerald-500/30 flex-shrink-0">
             <Wand2 className="w-7 h-7 text-white" />
           </div>
 
           <div>
+
             <div className="flex items-center gap-2 mb-1">
               <Activity className="w-4 h-4 text-emerald-200" />
 
@@ -1216,33 +999,47 @@ const CleaningCenter = () => {
             <p className="mt-1.5 text-teal-100 text-sm max-w-lg">
               Fix data quality issues with smart, semantic-aware methods
             </p>
+
           </div>
         </div>
       </div>
 
+      {/* Success Message */}
       {message && (
         <div className="bg-emerald-50 dark:bg-emerald-900/30 border border-emerald-200 dark:border-emerald-700 text-emerald-700 dark:text-emerald-300 px-4 py-3 rounded-xl flex items-center gap-2 animate-slide-down">
+
           <CheckCircle2 className="w-5 h-5 flex-shrink-0" />
+
           {message}
+
         </div>
       )}
 
+      {/* Error Message */}
       {error && (
         <div className="bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-700 text-red-700 dark:text-red-300 px-4 py-3 rounded-xl flex items-center gap-2 animate-slide-down">
+
           <AlertTriangle className="w-5 h-5 flex-shrink-0" />
+
           {error}
+
         </div>
       )}
 
+      {/* Cleaning Log */}
       {cleaningLog.length > 0 && (
         <div className="bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20 border border-emerald-200 dark:border-emerald-800 rounded-2xl p-6 animate-slide-up">
+
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+
             <div className="flex items-start gap-3">
+
               <div className="w-11 h-11 rounded-xl bg-emerald-500 flex items-center justify-center flex-shrink-0 shadow-md shadow-emerald-500/30">
                 <CheckCircle2 className="w-6 h-6 text-white" />
               </div>
 
               <div>
+
                 <h2 className="text-lg font-semibold text-emerald-800 dark:text-emerald-200">
                   Data Cleaning Complete
                 </h2>
@@ -1250,7 +1047,9 @@ const CleaningCenter = () => {
                 <p className="text-sm text-emerald-600 dark:text-emerald-400 mt-0.5">
                   {cleaningLog.length} operation(s) applied. Download your cleaned dataset now.
                 </p>
+
               </div>
+
             </div>
 
             <button
@@ -1258,17 +1057,23 @@ const CleaningCenter = () => {
               disabled={downloading}
               className="btn-press inline-flex items-center gap-2 px-5 py-2.5 bg-emerald-600 text-white rounded-xl font-medium hover:bg-emerald-700 disabled:opacity-50 shadow-lg shadow-emerald-500/25 transition-all"
             >
+
               <Download className="w-4 h-4" />
 
               {downloading
                 ? 'Downloading...'
                 : 'Download Cleaned File'}
+
             </button>
+
           </div>
+
         </div>
       )}
 
+      {/* Dataset Actions */}
       <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm p-5">
+
         <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-1">
           Rows / Columns
         </h2>
@@ -1278,6 +1083,7 @@ const CleaningCenter = () => {
         </p>
 
         <div className="flex flex-wrap gap-2">
+
           <button
             disabled={cleaning}
             onClick={() =>
@@ -1289,7 +1095,7 @@ const CleaningCenter = () => {
                 'empty-rows'
               )
             }
-            className="px-3 py-2 text-sm rounded-xl border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50"
+            className="px-3 py-2 text-sm rounded-xl border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700"
           >
             Remove Empty Rows
           </button>
@@ -1305,43 +1111,54 @@ const CleaningCenter = () => {
                 'error-rows'
               )
             }
-            className="px-3 py-2 text-sm rounded-xl border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50"
+            className="px-3 py-2 text-sm rounded-xl border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700"
           >
             Remove Error Rows
           </button>
+
         </div>
       </div>
 
+      {/* Data Quality Issues */}
       <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden">
+
         <div className="px-6 py-5 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
+
           <div>
+
             <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
               Data Quality Issues
             </h2>
 
             <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
-              {issues.length} issue
-              {issues.length !== 1 ? 's' : ''} remaining
+              {issues.length} issue{issues.length !== 1 ? 's' : ''} remaining
             </p>
+
           </div>
 
           <button
             onClick={() =>
-              setRefreshKey(
-                (prev) => prev + 1
-              )
+              setRefreshKey((prev) => prev + 1)
             }
             className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm text-gray-500 hover:text-gray-800 dark:hover:text-gray-200 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
           >
+
             <RefreshCw className="w-4 h-4" />
+
             Refresh
+
           </button>
+
         </div>
 
         {issues.length === 0 ? (
+
           <div className="py-16 text-center animate-scale-in">
+
             <div className="mx-auto w-16 h-16 rounded-2xl bg-emerald-50 dark:bg-emerald-900/30 flex items-center justify-center mb-4">
+
               <CheckCircle2 className="w-8 h-8 text-emerald-500" />
+
             </div>
 
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-1">
@@ -1351,10 +1168,15 @@ const CleaningCenter = () => {
             <p className="text-gray-500 dark:text-gray-400">
               Your dataset has been successfully cleaned.
             </p>
+
           </div>
+
         ) : (
+
           <div className="divide-y divide-gray-100 dark:divide-gray-700">
+
             {issues.map((issue, index) => {
+
               const issueKey =
                 `${issue.type}-${issue.column}-${index}`;
 
@@ -1371,31 +1193,26 @@ const CleaningCenter = () => {
               const extra =
                 extraParams[issueKey] || {};
 
-              const samples =
-                getSamples(issue);
-
-              const detailBadges =
-                renderIssueBadges(issue);
-
               return (
+
                 <div
                   key={issueKey}
                   className="stagger-item p-5 sm:p-6 hover:bg-gray-50/80 dark:hover:bg-gray-700/20 transition-colors"
                   style={{
-                    animationDelay:
-                      `${index * 0.04}s`
+                    animationDelay: `${index * 0.04}s`
                   }}
                 >
+
                   <div className="flex flex-col lg:flex-row lg:items-start gap-4">
+
                     <div className="flex-1 min-w-0">
+
                       <div className="flex flex-wrap items-center gap-2 mb-2">
+
                         <span
-                          className={`px-2.5 py-1 rounded-full text-xs font-semibold ${
-                            severityStyles[
-                              issue.severity
-                            ] ||
+                          className={`px-2.5 py-1 rounded-full text-xs font-semibold ${severityStyles[issue.severity] ||
                             severityStyles.low
-                          }`}
+                            }`}
                         >
                           {issue.severity?.toUpperCase() ||
                             'UNKNOWN'}
@@ -1406,8 +1223,7 @@ const CleaningCenter = () => {
                             ?.replace(/_/g, ' ')
                             .replace(
                               /\b\w/g,
-                              (l) =>
-                                l.toUpperCase()
+                              (l) => l.toUpperCase()
                             )}
                         </span>
 
@@ -1417,54 +1233,51 @@ const CleaningCenter = () => {
                             {issue.column}
                           </span>
                         </span>
+
                       </div>
 
                       <div className="flex flex-wrap items-center gap-2 mb-3">
+
                         <span
-                          className={`px-2.5 py-1 rounded-full text-xs font-semibold tracking-wide ${
-                            TYPE_COLORS[
-                              colType
-                            ] ||
+                          className={`px-2.5 py-1 rounded-full text-xs font-semibold tracking-wide ${TYPE_COLORS[colType] ||
                             TYPE_COLORS.text
-                          }`}
+                            }`}
                         >
                           {colType.toUpperCase()}
                         </span>
 
-                        {userOverrides[
-                          issue.column
-                        ] ? (
+                        {userOverrides[issue.column] ? (
+
                           <span className="text-[11px] font-medium text-gray-500 dark:text-gray-400">
                             Manual
                           </span>
+
                         ) : (
+
                           <span className="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
                             AI Detected
                           </span>
+
                         )}
 
                         <button
                           type="button"
                           onClick={() =>
-                            setTypePickerOpen(
-                              (prev) => ({
-                                ...prev,
-                                [issue.column]:
-                                  !prev[
-                                    issue.column
-                                  ]
-                              })
-                            )
+                            setTypePickerOpen((prev) => ({
+                              ...prev,
+                              [issue.column]:
+                                !prev[issue.column]
+                            }))
                           }
                           className="text-[11px] font-medium text-gray-500 hover:text-emerald-700 dark:text-gray-400 dark:hover:text-emerald-300 underline-offset-2 hover:underline"
                         >
                           Change
                         </button>
+
                       </div>
 
-                      {typePickerOpen[
-                        issue.column
-                      ] && (
+                      {typePickerOpen[issue.column] && (
+
                         <select
                           value={colType}
                           onChange={(e) =>
@@ -1475,6 +1288,7 @@ const CleaningCenter = () => {
                           }
                           className="mb-3 text-xs px-2.5 py-1.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300 focus:ring-2 focus:ring-emerald-500/40"
                         >
+
                           <option value="numeric">
                             Numeric
                           </option>
@@ -1506,19 +1320,9 @@ const CleaningCenter = () => {
                           <option value="binary">
                             Binary
                           </option>
-                        </select>
-                      )}
 
-                      {(
-                        issue.description ||
-                        issue.explanation ||
-                        issue.reason
-                      ) && (
-                        <p className="text-sm text-gray-600 dark:text-gray-400 italic leading-relaxed mb-2">
-                          {issue.description ||
-                            issue.explanation ||
-                            issue.reason}
-                        </p>
+                        </select>
+
                       )}
 
                       <p className="text-gray-700 dark:text-gray-300 text-sm leading-relaxed">
@@ -1530,57 +1334,10 @@ const CleaningCenter = () => {
                         {issue.percentage_affected}%)
                       </p>
 
-                      {samples.length > 0 && (
-                        <div className="mt-2">
-                          <p className="text-xs text-gray-500 dark:text-gray-400">
-                            <span className="font-medium">
-                              Samples:
-                            </span>{' '}
-                            {samples
-                              .slice(0, 8)
-                              .map(
-                                (sample, i) => (
-                                  <span
-                                    key={i}
-                                    className="font-mono"
-                                  >
-                                    {String(
-                                      sample
-                                    )}
-                                    {i <
-                                      Math.min(
-                                        samples.length,
-                                        8
-                                      ) -
-                                        1
-                                      ? ', '
-                                      : ''}
-                                  </span>
-                                )
-                              )}
-                          </p>
-                        </div>
-                      )}
+                      {issue.type !== 'high_cardinality' && (
 
-                      {detailBadges.length >
-                        0 && (
-                        <div className="flex flex-wrap gap-2 mt-2">
-                          {detailBadges.map(
-                            (badge, i) => (
-                              <span
-                                key={i}
-                                className="px-2.5 py-1 rounded-full border border-amber-200 dark:border-amber-700 bg-amber-50 dark:bg-amber-900/20 text-[11px] font-medium text-amber-700 dark:text-amber-300"
-                              >
-                                {badge.label}
-                              </span>
-                            )
-                          )}
-                        </div>
-                      )}
-
-                      {issue.type !==
-                        'high_cardinality' && (
                         <div className="mt-4">
+
                           <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 uppercase tracking-wide">
                             Cleaning Method
                           </label>
@@ -1599,75 +1356,63 @@ const CleaningCenter = () => {
                             className="w-full sm:w-72 px-3.5 py-2.5 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500 transition-all"
                             disabled={cleaning}
                           >
+
                             {(
-                              COLUMN_GROUP_KEYS[
-                                colType
-                              ] || [
-                                'missing_values'
-                              ]
-                            ).map(
-                              (groupKey) => {
-                                const group =
-                                  OPERATION_GROUPS[
-                                    groupKey
-                                  ];
+                              COLUMN_GROUP_KEYS[colType] ||
+                              ['missing_values']
+                            ).map((groupKey) => {
 
-                                if (!group) {
-                                  return null;
-                                }
+                              const group =
+                                OPERATION_GROUPS[groupKey];
 
-                                const availableMethods =
-                                  group.methods.filter(
-                                    (method) =>
-                                      allowedMethods.includes(
-                                        method
-                                      )
-                                  );
-
-                                if (
-                                  availableMethods.length ===
-                                  0
-                                ) {
-                                  return null;
-                                }
-
-                                return (
-                                  <optgroup
-                                    key={
-                                      groupKey
-                                    }
-                                    label={
-                                      group.label
-                                    }
-                                  >
-                                    {availableMethods.map(
-                                      (
-                                        method
-                                      ) => (
-                                        <option
-                                          key={
-                                            method
-                                          }
-                                          value={
-                                            method
-                                          }
-                                        >
-                                          {OPERATION_LABELS[
-                                            method
-                                          ] ||
-                                            method}
-                                        </option>
-                                      )
-                                    )}
-                                  </optgroup>
-                                );
+                              if (!group) {
+                                return null;
                               }
-                            )}
+
+                              const availableMethods =
+                                group.methods.filter(
+                                  (m) =>
+                                    allowedMethods.includes(m)
+                                );
+
+                              if (
+                                availableMethods.length === 0
+                              ) {
+                                return null;
+                              }
+
+                              return (
+
+                                <optgroup
+                                  key={groupKey}
+                                  label={group.label}
+                                >
+
+                                  {availableMethods.map(
+                                    (method) => (
+
+                                      <option
+                                        key={method}
+                                        value={method}
+                                      >
+                                        {OPERATION_LABELS[method] ||
+                                          method}
+                                      </option>
+
+                                    )
+                                  )}
+
+                                </optgroup>
+
+                              );
+                            })}
+
                           </select>
 
-                          {selectedOp ===
-                            'custom_value' && (
+                          {selectedOp === 'custom_value' && (
+
                             <div className="mt-3">
+
                               <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
                                 Enter Custom Value
                               </label>
@@ -1675,41 +1420,40 @@ const CleaningCenter = () => {
                               <input
                                 type="text"
                                 value={
-                                  customValues[
-                                    issueKey
-                                  ] || ''
+                                  customValues[issueKey] ||
+                                  ''
                                 }
                                 onChange={(e) =>
                                   setCustomValues(
                                     (prev) => ({
                                       ...prev,
                                       [issueKey]:
-                                        e.target
-                                          .value
+                                        e.target.value
                                     })
                                   )
                                 }
                                 placeholder="Enter value to fill missing data"
                                 className="w-full sm:w-72 px-3.5 py-2.5 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-emerald-500/40"
                               />
+
                             </div>
+
                           )}
 
-                          {selectedOp ===
-                            'find_replace' && (
+                          {selectedOp === 'find_replace' && (
+
                             <div className="mt-3 space-y-2">
+
                               <input
                                 type="text"
                                 value={
-                                  extra.find ||
-                                  ''
+                                  extra.find || ''
                                 }
                                 onChange={(e) =>
                                   updateExtra(
                                     issueKey,
                                     'find',
-                                    e.target
-                                      .value
+                                    e.target.value
                                   )
                                 }
                                 placeholder="Find text"
@@ -1719,38 +1463,37 @@ const CleaningCenter = () => {
                               <input
                                 type="text"
                                 value={
-                                  extra.replace ||
-                                  ''
+                                  extra.replace || ''
                                 }
                                 onChange={(e) =>
                                   updateExtra(
                                     issueKey,
                                     'replace',
-                                    e.target
-                                      .value
+                                    e.target.value
                                   )
                                 }
                                 placeholder="Replace with"
                                 className="w-full sm:w-72 px-3.5 py-2.5 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
                               />
+
                             </div>
+
                           )}
 
-                          {selectedOp ===
-                            'replace_category' && (
+                          {selectedOp === 'replace_category' && (
+
                             <div className="mt-3 space-y-2">
+
                               <input
                                 type="text"
                                 value={
-                                  extra.old_value ||
-                                  ''
+                                  extra.old_value || ''
                                 }
                                 onChange={(e) =>
                                   updateExtra(
                                     issueKey,
                                     'old_value',
-                                    e.target
-                                      .value
+                                    e.target.value
                                   )
                                 }
                                 placeholder="Old category"
@@ -1760,26 +1503,27 @@ const CleaningCenter = () => {
                               <input
                                 type="text"
                                 value={
-                                  extra.new_value ||
-                                  ''
+                                  extra.new_value || ''
                                 }
                                 onChange={(e) =>
                                   updateExtra(
                                     issueKey,
                                     'new_value',
-                                    e.target
-                                      .value
+                                    e.target.value
                                   )
                                 }
                                 placeholder="New category"
                                 className="w-full sm:w-72 px-3.5 py-2.5 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
                               />
+
                             </div>
+
                           )}
 
-                          {selectedOp ===
-                            'merge_categories' && (
+                          {selectedOp === 'merge_categories' && (
+
                             <div className="mt-3 space-y-2">
+
                               <input
                                 type="text"
                                 value={
@@ -1791,8 +1535,7 @@ const CleaningCenter = () => {
                                   updateExtra(
                                     issueKey,
                                     'from_values',
-                                    e.target
-                                      .value
+                                    e.target.value
                                   )
                                 }
                                 placeholder="Categories to merge, comma-separated"
@@ -1802,26 +1545,27 @@ const CleaningCenter = () => {
                               <input
                                 type="text"
                                 value={
-                                  extra.new_value ||
-                                  ''
+                                  extra.new_value || ''
                                 }
                                 onChange={(e) =>
                                   updateExtra(
                                     issueKey,
                                     'new_value',
-                                    e.target
-                                      .value
+                                    e.target.value
                                   )
                                 }
                                 placeholder="New category name"
                                 className="w-full sm:w-72 px-3.5 py-2.5 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
                               />
+
                             </div>
+
                           )}
 
-                          {selectedOp ===
-                            'group_rare' && (
+                          {selectedOp === 'group_rare' && (
+
                             <div className="mt-3">
+
                               <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
                                 Min count (below this becomes Other)
                               </label>
@@ -1830,28 +1574,32 @@ const CleaningCenter = () => {
                                 type="number"
                                 min="1"
                                 value={
-                                  extra.threshold ||
-                                  5
+                                  extra.threshold || 5
                                 }
                                 onChange={(e) =>
                                   updateExtra(
                                     issueKey,
                                     'threshold',
-                                    e.target
-                                      .value
+                                    e.target.value
                                   )
                                 }
                                 className="w-full sm:w-72 px-3.5 py-2.5 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
                               />
+
                             </div>
+
                           )}
+
                         </div>
+
                       )}
 
-                      {issue.type ===
-                        'high_cardinality' && (
+                      {issue.type === 'high_cardinality' && (
+
                         <div className="mt-4 bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4 border border-gray-100 dark:border-gray-600">
+
                           <p className="text-sm text-gray-600 dark:text-gray-300">
+
                             Unique Values:{' '}
                             <strong>
                               {issue.unique_count ||
@@ -1868,50 +1616,65 @@ const CleaningCenter = () => {
                                 'N/A'}
                               %
                             </strong>
+
                           </p>
 
                           <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
                             High cardinality is informational and does not require a cleaning operation.
                           </p>
+
                         </div>
+
                       )}
+
                     </div>
 
-                    {issue.type !==
-                      'high_cardinality' && (
+                    {issue.type !== 'high_cardinality' && (
+
                       <button
                         onClick={() =>
-                          handleClean(
-                            issue,
-                            index
-                          )
+                          handleClean(issue, index)
                         }
                         disabled={cleaning}
-                        className={`btn-press flex-shrink-0 px-5 py-2.5 rounded-xl text-sm font-semibold whitespace-nowrap transition-all ${
-                          cleaningIssueId ===
-                          index
+                        className={`btn-press flex-shrink-0 px-5 py-2.5 rounded-xl text-sm font-semibold whitespace-nowrap transition-all ${cleaningIssueId === index
                             ? 'bg-gray-400 text-white cursor-not-allowed'
                             : 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-lg shadow-emerald-500/25 hover:shadow-xl hover:scale-[1.02]'
-                        }`}
+                          }`}
                       >
-                        {cleaningIssueId ===
-                        index ? (
+
+                        {cleaningIssueId === index ? (
+
                           <span className="flex items-center gap-2">
+
                             <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+
                             Fixing...
+
                           </span>
+
                         ) : (
+
                           'Fix Issue'
+
                         )}
+
                       </button>
+
                     )}
+
                   </div>
+
                 </div>
+
               );
             })}
+
           </div>
+
         )}
+
       </div>
+
     </div>
   );
 };
