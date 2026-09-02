@@ -7,6 +7,8 @@ import {
 } from 'lucide-react';
 import LoadingState from '../components/LoadingState';
 
+const API_URL = 'https://datadoctor-ai.onrender.com';
+
 const DataDoctor = () => {
   const { id } = useParams();
   const { token } = useContext(AuthContext);
@@ -49,7 +51,7 @@ const DataDoctor = () => {
 
   const fetchHealthScore = async () => {
     try {
-      const response = await fetch(`http://localhost:8000/api/datasets/${id}/health`, {
+      const response = await fetch(`${API_URL}/api/datasets/${id}/health`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (response.ok) {
@@ -65,7 +67,7 @@ const DataDoctor = () => {
     setLoading(true);
     setError('');
     try {
-      const response = await fetch(`http://localhost:8000/api/datasets/${id}/issues`, {
+      const response = await fetch(`${API_URL}/api/datasets/${id}/issues`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (!response.ok) throw new Error(`Failed: ${response.status}`);
@@ -83,7 +85,7 @@ const DataDoctor = () => {
     setDiagnosing(true);
     setError('');
     try {
-      const response = await fetch(`http://localhost:8000/api/datasets/${id}/diagnose`, {
+      const response = await fetch(`${API_URL}/api/datasets/${id}/diagnose`, {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${token}` }
       });
@@ -116,11 +118,9 @@ const DataDoctor = () => {
 
   return (
     <div className="animate-fade-in space-y-8">
-      {/* Hero Header */}
       <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-800 via-slate-900 to-indigo-950 p-6 sm:p-8 text-white shadow-xl">
         <div className="absolute top-0 right-0 w-72 h-72 bg-indigo-500/20 rounded-full -translate-y-1/2 translate-x-1/3 blur-3xl"></div>
         <div className="absolute bottom-0 left-0 w-48 h-48 bg-purple-400/10 rounded-full translate-y-1/3 -translate-x-1/4 blur-2xl"></div>
-
         <div className="relative z-10 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
           <div className="flex items-start gap-4">
             <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/30 flex-shrink-0">
@@ -132,12 +132,9 @@ const DataDoctor = () => {
                 <span className="text-blue-300 text-sm font-medium">Data Quality Diagnosis</span>
               </div>
               <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Data Doctor</h1>
-              <p className="mt-1.5 text-slate-300 text-sm">
-                Detect issues and get AI-powered recommendations
-              </p>
+              <p className="mt-1.5 text-slate-300 text-sm">Detect issues and get AI-powered recommendations</p>
             </div>
           </div>
-
           <div className="flex flex-wrap gap-3">
             <button
               onClick={runDiagnosis}
@@ -175,13 +172,15 @@ const DataDoctor = () => {
         </div>
       )}
 
-      {/* Health Score Card */}
       <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm p-8 flex flex-col sm:flex-row items-center justify-center gap-10">
         <div className="relative w-40 h-40">
           <svg className="w-40 h-40" viewBox="0 0 100 100">
             <circle cx="50" cy="50" r="42" fill="none" stroke="currentColor" strokeWidth="8" className="text-gray-100 dark:text-gray-700" />
             <circle
-              cx="50" cy="50" r="42" fill="none"
+              cx="50"
+              cy="50"
+              r="42"
+              fill="none"
               stroke={health.ring}
               strokeWidth="8"
               strokeLinecap="round"
@@ -195,7 +194,6 @@ const DataDoctor = () => {
             <span className="text-xs text-gray-400 font-medium">/ 100</span>
           </div>
         </div>
-
         <div className="text-center sm:text-left">
           <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Data Health Score</p>
           <p className={`text-2xl font-bold ${health.text}`}>{health.label}</p>
@@ -209,7 +207,6 @@ const DataDoctor = () => {
         </div>
       </div>
 
-      {/* AI Diagnosis */}
       {diagnosis && (
         <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm p-6 animate-slide-up">
           <div className="flex items-center gap-3 mb-4">
@@ -231,13 +228,10 @@ const DataDoctor = () => {
         </div>
       )}
 
-      {/* Issues List */}
       <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden">
         <div className="px-6 py-5 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
           <div>
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-              Detected Issues
-            </h2>
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Detected Issues</h2>
             <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
               {issues.length} issue{issues.length !== 1 ? 's' : ''} found
             </p>
@@ -256,12 +250,8 @@ const DataDoctor = () => {
             <div className="mx-auto w-16 h-16 rounded-2xl bg-emerald-50 dark:bg-emerald-900/30 flex items-center justify-center mb-4">
               <CheckCircle2 className="w-8 h-8 text-emerald-500" />
             </div>
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-1">
-              No issues detected
-            </h3>
-            <p className="text-gray-500 dark:text-gray-400">
-              Your data looks clean and healthy.
-            </p>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-1">No issues detected</h3>
+            <p className="text-gray-500 dark:text-gray-400">Your data looks clean and healthy.</p>
           </div>
         ) : (
           <div className="divide-y divide-gray-100 dark:divide-gray-700">
@@ -285,9 +275,7 @@ const DataDoctor = () => {
                         {issue.type?.replace(/_/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase())}
                       </span>
                     </div>
-                    <p className="text-gray-700 dark:text-gray-300 text-sm leading-relaxed">
-                      {issue.issue}
-                    </p>
+                    <p className="text-gray-700 dark:text-gray-300 text-sm leading-relaxed">{issue.issue}</p>
                     <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
                       {issue.affected_rows} rows affected ({issue.percentage_affected}%)
                     </p>

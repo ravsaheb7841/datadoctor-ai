@@ -19,9 +19,13 @@ const AIInsights = () => {
 
   const fetchInsights = async () => {
     try {
-      const response = await fetch(`http://localhost:8000/api/datasets/${id}/insights`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
+      const response = await fetch(
+        `https://datadoctor-ai.onrender.com/api/datasets/${id}/insights`,
+        {
+          headers: { 'Authorization': `Bearer ${token}` }
+        }
+      );
+
       const data = await response.json();
       setInsights(data);
     } catch (error) {
@@ -142,9 +146,8 @@ const AIInsights = () => {
                         {finding.finding}
                       </p>
                       <span
-                        className={`inline-block mt-2 px-2.5 py-0.5 rounded-full text-xs font-semibold capitalize ${
-                          importanceStyles[finding.importance] || importanceStyles.medium
-                        }`}
+                        className={`inline-block mt-2 px-2.5 py-0.5 rounded-full text-xs font-semibold capitalize ${importanceStyles[finding.importance] || importanceStyles.medium
+                          }`}
                       >
                         {finding.importance || 'medium'} importance
                       </span>

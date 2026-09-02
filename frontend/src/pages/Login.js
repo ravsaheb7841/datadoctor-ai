@@ -3,6 +3,8 @@ import { useNavigate, Link } from 'react-router-dom';
 import { AuthContext } from '../App';
 import { Stethoscope, LogIn, Mail, Lock, Sparkles } from 'lucide-react';
 
+const API_URL = 'https://datadoctor-ai.onrender.com';
+
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -17,7 +19,7 @@ const Login = () => {
     setLoading(true);
 
     try {
-      const response = await fetch('http://localhost:8000/api/auth/login', {
+      const response = await fetch(`${API_URL}/api/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password })
@@ -124,7 +126,10 @@ const Login = () => {
 
           <p className="text-center mt-6 text-sm text-gray-500 dark:text-gray-400">
             Don't have an account?{' '}
-            <Link to="/register" className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 font-semibold">
+            <Link
+              to="/register"
+              className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 font-semibold"
+            >
               Register
             </Link>
           </p>

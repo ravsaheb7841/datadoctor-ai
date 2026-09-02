@@ -24,6 +24,8 @@ import DemoChat from './pages/DemoChat';
 export const AuthContext = createContext();
 export const ThemeContext = createContext();
 
+const API_URL = 'https://datadoctor-ai.onrender.com';
+
 function App() {
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(localStorage.getItem('token'));
@@ -48,9 +50,10 @@ function App() {
 
   const fetchUser = async () => {
     try {
-      const response = await fetch('http://localhost:8000/api/auth/me', {
+      const response = await fetch(`${API_URL}/api/auth/me`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
+
       if (response.ok) {
         const userData = await response.json();
         setUser(userData);

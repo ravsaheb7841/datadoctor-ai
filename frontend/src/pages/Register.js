@@ -3,6 +3,8 @@ import { useNavigate, Link } from 'react-router-dom';
 import { AuthContext } from '../App';
 import { Stethoscope, UserPlus, Mail, Lock, User, Sparkles } from 'lucide-react';
 
+const API_URL = 'https://datadoctor-ai.onrender.com';
+
 const Register = () => {
   const [formData, setFormData] = useState({
     name: '',
@@ -31,7 +33,7 @@ const Register = () => {
     }
 
     try {
-      const response = await fetch('http://localhost:8000/api/auth/register', {
+      const response = await fetch(`${API_URL}/api/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)
@@ -69,9 +71,11 @@ const Register = () => {
           <div className="w-14 h-14 bg-gradient-to-br from-indigo-600 to-violet-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-indigo-500/30">
             <Stethoscope className="w-7 h-7 text-white" />
           </div>
+
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">
             DataDoctor AI
           </h1>
+
           <p className="text-gray-500 dark:text-gray-400 mt-2 flex items-center justify-center gap-1.5">
             <Sparkles className="w-4 h-4 text-violet-500" />
             Create your account to get started
@@ -90,8 +94,10 @@ const Register = () => {
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Name
               </label>
+
               <div className="relative">
                 <User className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+
                 <input
                   type="text"
                   name="name"
@@ -108,8 +114,10 @@ const Register = () => {
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Email
               </label>
+
               <div className="relative">
                 <Mail className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+
                 <input
                   type="email"
                   name="email"
@@ -126,8 +134,10 @@ const Register = () => {
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Password
               </label>
+
               <div className="relative">
                 <Lock className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+
                 <input
                   type="password"
                   name="password"
@@ -144,8 +154,10 @@ const Register = () => {
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Confirm Password
               </label>
+
               <div className="relative">
                 <Lock className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+
                 <input
                   type="password"
                   name="confirm_password"
@@ -176,7 +188,10 @@ const Register = () => {
 
           <p className="text-center mt-6 text-sm text-gray-500 dark:text-gray-400">
             Already have an account?{' '}
-            <Link to="/login" className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 font-semibold">
+            <Link
+              to="/login"
+              className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 font-semibold"
+            >
               Login
             </Link>
           </p>

@@ -8,6 +8,8 @@ import {
 } from 'lucide-react';
 import LoadingState from '../components/LoadingState';
 
+const API_URL = 'https://datadoctor-ai.onrender.com';
+
 const EDA = () => {
   const { id } = useParams();
   const { token } = useContext(AuthContext);
@@ -24,7 +26,7 @@ const EDA = () => {
     setLoading(true);
     setError('');
     try {
-      const response = await fetch(`http://localhost:8000/api/datasets/${id}/eda`, {
+      const response = await fetch(`${API_URL}/api/datasets/${id}/eda`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
 

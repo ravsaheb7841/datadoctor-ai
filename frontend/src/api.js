@@ -1,9 +1,9 @@
 // frontend/src/services/api.js
-const API_BASE_URL = 'http://localhost:8000/api';
+const API_BASE_URL = 'https://datadoctor-ai.onrender.com/api';
 
 export const api = {
   getToken: () => localStorage.getItem('token'),
-  
+
   headers: () => ({
     'Authorization': `Bearer ${api.getToken()}`,
     'Content-Type': 'application/json'

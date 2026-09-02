@@ -2,8 +2,16 @@ import React, { useState, useCallback, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../App';
 import {
-  Upload, FileSpreadsheet, AlertCircle, CheckCircle2, Target, Activity, CloudUpload
+  Upload,
+  FileSpreadsheet,
+  AlertCircle,
+  CheckCircle2,
+  Target,
+  Activity,
+  CloudUpload
 } from 'lucide-react';
+
+const API_URL = 'https://datadoctor-ai.onrender.com';
 
 const DatasetUpload = () => {
   const { token } = useContext(AuthContext);
@@ -17,6 +25,7 @@ const DatasetUpload = () => {
   const handleDrag = useCallback((e) => {
     e.preventDefault();
     e.stopPropagation();
+
     if (e.type === 'dragenter' || e.type === 'dragover') {
       setDragActive(true);
     } else if (e.type === 'dragleave') {
@@ -28,6 +37,7 @@ const DatasetUpload = () => {
     e.preventDefault();
     e.stopPropagation();
     setDragActive(false);
+
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
       handleFile(e.dataTransfer.files[0]);
     }
@@ -35,7 +45,8 @@ const DatasetUpload = () => {
 
   const handleFile = (uploadedFile) => {
     const allowedTypes = ['.csv', '.xlsx', '.xls'];
-    const fileExtension = '.' + uploadedFile.name.split('.').pop().toLowerCase();
+    const fileExtension =
+      '.' + uploadedFile.name.split('.').pop().toLowerCase();
 
     if (!allowedTypes.includes(fileExtension)) {
       setError('Invalid file format. Please upload CSV or Excel files.');
@@ -53,6 +64,7 @@ const DatasetUpload = () => {
 
   const handleUpload = async () => {
     if (!file) return;
+
     setUploading(true);
     setProgress(0);
     setError('');
@@ -61,9 +73,11 @@ const DatasetUpload = () => {
     formData.append('file', file);
 
     try {
-      const response = await fetch('http://localhost:8000/api/datasets/upload', {
+      const response = await fetch(`${API_URL}/api/datasets/upload`, {
         method: 'POST',
-        headers: { 'Authorization': `Bearer ${token}` },
+        headers: {
+          'Authorization': `Bearer ${token}`
+        },
         body: formData
       });
 
@@ -71,6 +85,7 @@ const DatasetUpload = () => {
 
       if (response.ok) {
         setProgress(100);
+
         setTimeout(() => {
           navigate(`/datasets/${data._id}`);
         }, 500);
@@ -89,9 +104,11 @@ const DatasetUpload = () => {
     setError('');
 
     try {
-      const response = await fetch('http://localhost:8000/api/datasets/demo', {
+      const response = await fetch(`${API_URL}/api/datasets/demo`, {
         method: 'POST',
-        headers: { 'Authorization': `Bearer ${token}` }
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
       });
 
       const data = await response.json();
@@ -119,12 +136,19 @@ const DatasetUpload = () => {
           <div className="w-14 h-14 rounded-2xl bg-white/20 backdrop-blur flex items-center justify-center shadow-lg flex-shrink-0">
             <CloudUpload className="w-7 h-7 text-white" />
           </div>
+
           <div>
             <div className="flex items-center gap-2 mb-1">
               <Activity className="w-4 h-4 text-blue-200" />
-              <span className="text-blue-200 text-sm font-medium">Get Started</span>
+              <span className="text-blue-200 text-sm font-medium">
+                Get Started
+              </span>
             </div>
-            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Upload Dataset</h1>
+
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
+              Upload Dataset
+            </h1>
+
             <p className="mt-1.5 text-blue-100 text-sm max-w-lg">
               Upload your CSV or Excel file to begin analysis and cleaning
             </p>
@@ -159,20 +183,29 @@ const DatasetUpload = () => {
               <div className="mx-auto w-20 h-20 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-xl shadow-blue-500/30 mb-6">
                 <FileSpreadsheet className="w-10 h-10 text-white" />
               </div>
+
               <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
                 Drag & drop your dataset here
               </h3>
-              <p className="text-gray-500 dark:text-gray-400 mb-1">or click to browse files</p>
+
+              <p className="text-gray-500 dark:text-gray-400 mb-1">
+                or click to browse files
+              </p>
+
               <p className="text-xs text-gray-400 dark:text-gray-500 mb-6">
                 Supports CSV, XLSX, XLS · Max 100MB
               </p>
+
               <input
                 type="file"
                 accept=".csv,.xlsx,.xls"
-                onChange={(e) => e.target.files && handleFile(e.target.files[0])}
+                onChange={(e) =>
+                  e.target.files && handleFile(e.target.files[0])
+                }
                 className="hidden"
                 id="file-upload"
               />
+
               <label
                 htmlFor="file-upload"
                 className="btn-press inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl font-medium shadow-lg shadow-blue-500/25 hover:shadow-xl hover:scale-[1.02] cursor-pointer transition-all"
@@ -186,12 +219,15 @@ const DatasetUpload = () => {
               <div className="mx-auto w-20 h-20 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-xl shadow-emerald-500/30 mb-6">
                 <CheckCircle2 className="w-10 h-10 text-white" />
               </div>
+
               <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-1">
                 {file.name}
               </h3>
+
               <p className="text-gray-500 dark:text-gray-400 mb-6">
                 {(file.size / 1024).toFixed(1)} KB ready to upload
               </p>
+
               <div className="flex flex-wrap items-center justify-center gap-3">
                 <button
                   onClick={handleUpload}
@@ -201,6 +237,7 @@ const DatasetUpload = () => {
                   <Upload className="w-4 h-4" />
                   {uploading ? 'Processing...' : 'Upload & Analyze'}
                 </button>
+
                 <button
                   onClick={() => setFile(null)}
                   disabled={uploading}
@@ -222,6 +259,7 @@ const DatasetUpload = () => {
                 style={{ width: `${progress || 35}%` }}
               ></div>
             </div>
+
             <p className="text-center text-sm text-gray-500 dark:text-gray-400 mt-3">
               Analyzing your dataset...
             </p>
@@ -233,6 +271,7 @@ const DatasetUpload = () => {
           <p className="text-gray-500 dark:text-gray-400 mb-4 text-sm">
             Don't have a file? Try with sample data
           </p>
+
           <button
             onClick={loadDemo}
             disabled={uploading}

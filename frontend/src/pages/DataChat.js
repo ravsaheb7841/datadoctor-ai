@@ -3,6 +3,8 @@ import { useParams } from 'react-router-dom';
 import { AuthContext } from '../App';
 import { Send, MessageSquare, Bot, Sparkles, Zap } from 'lucide-react';
 
+const API_URL = 'https://datadoctor-ai.onrender.com';
+
 const DataChat = () => {
   const { id } = useParams();
   const { token } = useContext(AuthContext);
@@ -35,7 +37,7 @@ const DataChat = () => {
 
   const fetchHistory = async () => {
     try {
-      const response = await fetch(`http://localhost:8000/api/datasets/${id}/chat/history`, {
+      const response = await fetch(`${API_URL}/api/datasets/${id}/chat/history`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       const data = await response.json();
@@ -58,10 +60,14 @@ const DataChat = () => {
     setLoading(true);
     setAiThinking(true);
 
-    setMessages(prev => [...prev, { query: queryText, response: null, timestamp: new Date().toISOString() }]);
+    setMessages(prev => [...prev, {
+      query: queryText,
+      response: null,
+      timestamp: new Date().toISOString()
+    }]);
 
     try {
-      const response = await fetch(`http://localhost:8000/api/datasets/${id}/chat`, {
+      const response = await fetch(`${API_URL}/api/datasets/${id}/chat`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -99,27 +105,21 @@ const DataChat = () => {
 
   return (
     <div className="flex flex-col h-full animate-fade-in">
-      {/* Header */}
       <div className="mb-4 flex-shrink-0">
         <div className="flex items-center gap-3">
           <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/25">
             <MessageSquare className="w-5 h-5 text-white" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-              Data Chat
-            </h1>
-            <p className="text-sm text-gray-500 dark:text-gray-400">
-              Ask anything about your dataset in natural language
-            </p>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Data Chat</h1>
+            <p className="text-sm text-gray-500 dark:text-gray-400">Ask anything about your dataset in natural language</p>
           </div>
         </div>
       </div>
 
-      {/* Chat Area */}
       <div className="flex-1 min-h-0 overflow-y-auto rounded-2xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-sm relative">
-        {/* subtle background pattern */}
-        <div className="absolute inset-0 opacity-[0.03] dark:opacity-[0.05] pointer-events-none"
+        <div
+          className="absolute inset-0 opacity-[0.03] dark:opacity-[0.05] pointer-events-none"
           style={{
             backgroundImage: 'radial-gradient(circle at 1px 1px, currentColor 1px, transparent 0)',
             backgroundSize: '24px 24px'
@@ -132,13 +132,10 @@ const DataChat = () => {
               <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-xl shadow-indigo-500/30 mb-6">
                 <Bot className="w-10 h-10 text-white" />
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-                Start a conversation
-              </h3>
+              <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">Start a conversation</h3>
               <p className="text-gray-500 dark:text-gray-400 mb-8 text-center max-w-sm">
                 Ask questions about your data. I can help with stats, missing values, trends and more.
               </p>
-
               <div className="flex flex-wrap gap-2.5 justify-center max-w-xl">
                 {suggestedQuestions.map((q, i) => (
                   <button
@@ -159,7 +156,6 @@ const DataChat = () => {
             <div className="space-y-5">
               {messages.map((msg, index) => (
                 <div key={index} className="animate-slide-up space-y-3">
-                  {/* User Message */}
                   <div className="flex justify-end">
                     <div className="flex items-end gap-2 max-w-[75%]">
                       <div className="bg-gradient-to-br from-blue-600 to-indigo-600 text-white px-4 py-3 rounded-2xl rounded-br-md shadow-md shadow-blue-500/20">
@@ -168,7 +164,6 @@ const DataChat = () => {
                     </div>
                   </div>
 
-                  {/* AI Response */}
                   {msg.response && (
                     <div className="flex justify-start">
                       <div className="flex items-start gap-3 max-w-[80%]">
@@ -186,7 +181,6 @@ const DataChat = () => {
                 </div>
               ))}
 
-              {/* AI Thinking */}
               {aiThinking && (
                 <div className="flex justify-start animate-fade-in">
                   <div className="flex items-start gap-3">
@@ -208,7 +202,6 @@ const DataChat = () => {
         </div>
       </div>
 
-      {/* Input Bar - Fixed at bottom */}
       <div className="flex-shrink-0 mt-4 bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm p-3 sm:p-4">
         <div className="flex items-center gap-3">
           <div className="flex-1 relative">

@@ -9,6 +9,7 @@ import {
 
 const Landing = () => {
   const navigate = useNavigate();
+
   const handleDemo = () => {
     navigate('/demo');
   };
@@ -63,21 +64,21 @@ const Landing = () => {
       title: 'Health Scoring',
       description: 'Track data quality with a live health score and issue severity breakdown.',
       gradient: 'from-teal-500 to-emerald-600'
-    },
+    }
   ];
 
   const previewStats = [
     { icon: Database, label: 'Health Score', value: '87/100', color: 'from-emerald-500 to-teal-600' },
     { icon: Search, label: 'Issues Detected', value: '12', color: 'from-amber-500 to-orange-600' },
     { icon: BarChart3, label: 'Rows Analyzed', value: '1,254', color: 'from-blue-500 to-indigo-600' },
-    { icon: Bot, label: 'AI Insights', value: '24', color: 'from-purple-500 to-violet-600' },
+    { icon: Bot, label: 'AI Insights', value: '24', color: 'from-purple-500 to-violet-600' }
   ];
 
   const footerLinks = {
     Product: ['Features', 'Demo', 'Pricing', 'Documentation'],
     Company: ['About', 'Careers', 'Blog', 'Press'],
     Resources: ['Help Center', 'API Reference', 'Guides', 'Community'],
-    Legal: ['Privacy Policy', 'Terms of Service', 'Cookie Policy', 'Security'],
+    Legal: ['Privacy Policy', 'Terms of Service', 'Cookie Policy', 'Security']
   };
 
   const socialLinks = [
@@ -85,7 +86,7 @@ const Landing = () => {
     { icon: Mail, href: 'mailto:support@datadoctor.ai', label: 'Email' },
     { icon: Zap, href: '#', label: 'Quick Start' },
     { icon: Stars, href: '#', label: 'Features' },
-    { icon: Heart, href: '#', label: 'Community' },
+    { icon: Heart, href: '#', label: 'Community' }
   ];
 
   return (
@@ -102,6 +103,7 @@ const Landing = () => {
                 DataDoctor AI
               </span>
             </div>
+
             <div className="flex items-center space-x-2 sm:space-x-4">
               <button
                 onClick={() => navigate('/login')}
@@ -109,6 +111,7 @@ const Landing = () => {
               >
                 Login
               </button>
+
               <button
                 onClick={() => navigate('/register')}
                 className="btn-press bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-5 py-2 rounded-xl text-sm font-semibold hover:shadow-lg hover:shadow-blue-500/25 transition-all"
@@ -123,6 +126,7 @@ const Landing = () => {
       {/* Hero Section */}
       <div className="relative pt-32 pb-20 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-blue-50 via-indigo-50/40 to-white dark:from-gray-900 dark:via-indigo-950/40 dark:to-gray-950"></div>
+
         <div className="absolute top-20 right-0 w-[500px] h-[500px] bg-blue-400/20 rounded-full blur-3xl"></div>
         <div className="absolute top-40 left-0 w-[400px] h-[400px] bg-indigo-400/15 rounded-full blur-3xl"></div>
 
@@ -132,6 +136,7 @@ const Landing = () => {
               <Sparkles className="w-4 h-4" />
               AI-powered data quality platform
             </div>
+
             <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-gray-900 dark:text-white mb-6 tracking-tight leading-tight">
               Diagnose. Clean. Understand.
               <br />
@@ -139,10 +144,12 @@ const Landing = () => {
                 Your Data.
               </span>
             </h1>
+
             <p className="text-lg text-gray-600 dark:text-gray-400 mb-10 max-w-2xl mx-auto leading-relaxed">
               Upload your dataset and let AI detect quality problems, recommend fixes,
               clean your data, and uncover meaningful business insights.
             </p>
+
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <button
                 onClick={() => navigate('/register')}
@@ -151,6 +158,7 @@ const Landing = () => {
                 Analyze My Data
                 <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
               </button>
+
               <button
                 onClick={handleDemo}
                 className="btn-press inline-flex items-center justify-center px-8 py-3.5 bg-white dark:bg-gray-800 text-blue-600 dark:text-blue-400 rounded-xl font-semibold border-2 border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all"
@@ -165,6 +173,7 @@ const Landing = () => {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
               {previewStats.map((stat, i) => {
                 const Icon = stat.icon;
+
                 return (
                   <div
                     key={i}
@@ -174,8 +183,14 @@ const Landing = () => {
                     <div className={`inline-flex p-2 rounded-lg bg-gradient-to-br ${stat.color} text-white mb-3 shadow-md`}>
                       <Icon className="w-4 h-4" />
                     </div>
-                    <div className="text-sm text-gray-500 dark:text-gray-400">{stat.label}</div>
-                    <div className="text-xl font-bold text-gray-900 dark:text-white mt-0.5">{stat.value}</div>
+
+                    <div className="text-sm text-gray-500 dark:text-gray-400">
+                      {stat.label}
+                    </div>
+
+                    <div className="text-xl font-bold text-gray-900 dark:text-white mt-0.5">
+                      {stat.value}
+                    </div>
                   </div>
                 );
               })}
@@ -186,9 +201,13 @@ const Landing = () => {
                 <div
                   key={i}
                   className="flex-1 rounded-t-md bg-gradient-to-t from-blue-600 to-indigo-400 opacity-80 hover:opacity-100 transition-opacity"
-                  style={{ height: `${h}%`, animationDelay: `${i * 0.05}s` }}
+                  style={{
+                    height: `${h}%`,
+                    animationDelay: `${i * 0.05}s`
+                  }}
                 ></div>
               ))}
+
               <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                 <div className="px-4 py-2 rounded-full bg-white/80 dark:bg-gray-800/80 backdrop-blur text-sm font-medium text-gray-600 dark:text-gray-300 shadow-sm">
                   Live data quality dashboard
@@ -206,13 +225,16 @@ const Landing = () => {
             <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-4 tracking-tight">
               Powerful Features
             </h2>
+
             <p className="text-gray-500 dark:text-gray-400 max-w-2xl mx-auto">
               Everything you need to understand, clean, and analyze your data
             </p>
           </div>
+
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
             {features.map((feature, index) => {
               const Icon = feature.icon;
+
               return (
                 <div
                   key={index}
@@ -222,9 +244,11 @@ const Landing = () => {
                   <div className={`w-12 h-12 bg-gradient-to-br ${feature.gradient} rounded-xl flex items-center justify-center mb-4 shadow-lg group-hover:scale-110 transition-transform`}>
                     <Icon className="w-6 h-6 text-white" />
                   </div>
+
                   <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
                     {feature.title}
                   </h3>
+
                   <p className="text-gray-500 dark:text-gray-400 text-sm leading-relaxed">
                     {feature.description}
                   </p>
@@ -239,12 +263,15 @@ const Landing = () => {
       <div className="px-4 sm:px-6 lg:px-8 pb-20">
         <div className="max-w-7xl mx-auto relative overflow-hidden rounded-2xl bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-700 p-10 sm:p-14 text-center text-white shadow-2xl">
           <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl"></div>
+
           <h2 className="relative text-3xl sm:text-4xl font-bold mb-4 tracking-tight">
             Ready to heal your data?
           </h2>
+
           <p className="relative text-blue-100 mb-8 max-w-xl mx-auto">
             Start free. Upload a dataset in seconds and get AI diagnosis instantly.
           </p>
+
           <button
             onClick={() => navigate('/register')}
             className="relative btn-press inline-flex items-center gap-2 px-8 py-3.5 bg-white text-indigo-700 font-semibold rounded-xl shadow-lg hover:scale-[1.02] transition-all"
@@ -258,11 +285,9 @@ const Landing = () => {
       {/* Footer */}
       <footer className="border-t border-gray-200 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-
           {/* Main Footer */}
           <div className="py-10 sm:py-12">
             <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-8">
-
               {/* Brand */}
               <div className="max-w-sm">
                 <div className="flex items-center mb-3">
@@ -307,7 +332,6 @@ const Landing = () => {
 
               {/* Social / CTA */}
               <div className="flex items-center gap-3">
-
                 <a
                   href="https://github.com/ravsaheb7841"
                   target="_blank"
@@ -338,7 +362,7 @@ const Landing = () => {
                     viewBox="0 0 24 24"
                     aria-hidden="true"
                   >
-                    <path d="M20.45 20.45h-3.55v-5.57c0-1.33-.02-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.35V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.56V9h3.56v11.45zM22.23 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.23.79 24 1.77 24h20.46C23.21 24 24 23.23 24 22.27V1.73C24 .77 23.21 0 22.23 0z" />
+                    <path d="M20.45 20.45h-3.55v-5.57c0-1.33-.02-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.35V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0-4.12zM7.12 20.45H3.56V9h3.56v11.45zM22.23 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.23.79 24 1.77 24h20.46C23.21 24 24 23.23 24 22.27V1.73C24 .77 23.21 0 22.23 0z" />
                   </svg>
                 </a>
 
@@ -349,14 +373,12 @@ const Landing = () => {
                 >
                   <Mail className="w-5 h-5" />
                 </a>
-
               </div>
             </div>
           </div>
 
           {/* Bottom Bar */}
           <div className="border-t border-gray-100 py-5 flex flex-col sm:flex-row items-center justify-between gap-3">
-
             <p className="text-sm text-gray-500">
               © {new Date().getFullYear()} DataDoctor AI. All rights reserved.
             </p>
@@ -365,7 +387,6 @@ const Landing = () => {
               <span className="w-2 h-2 rounded-full bg-green-500"></span>
               <span>AI-powered data quality platform</span>
             </div>
-
           </div>
         </div>
       </footer>
@@ -374,5 +395,3 @@ const Landing = () => {
 };
 
 export default Landing;
-
-

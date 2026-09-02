@@ -15,6 +15,7 @@ async def connect_db():
     global client, db
     client = motor.motor_asyncio.AsyncIOMotorClient(MONGO_URL)
     db = client[MONGO_DB_NAME]
+
     # Create indexes
     await db.users.create_index("email", unique=True)
     await db.datasets.create_index([("user_id", 1), ("created_at", -1)])
@@ -25,6 +26,7 @@ async def connect_db():
     await db.ai_insights.create_index("dataset_id")
     await db.reports.create_index("dataset_id")
     await db.chat_history.create_index([("dataset_id", 1), ("created_at", -1)])
+
     return db
 
 async def close_db():

@@ -30,7 +30,11 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://localhost:5173"],
+    allow_origins=[
+        "http://localhost:3000",
+        "http://localhost:5173",
+        "https://datadoctor-ai.vercel.app"
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -38,6 +42,7 @@ app.add_middleware(
 
 # Include routers
 from app.api import auth, datasets, analysis, cleaning, chat, reports
+
 app.include_router(auth.router, prefix="/api/auth", tags=["Auth"])
 app.include_router(datasets.router, prefix="/api/datasets", tags=["Datasets"])
 app.include_router(analysis.router, prefix="/api/datasets", tags=["Analysis"])
