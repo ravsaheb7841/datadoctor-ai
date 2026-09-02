@@ -2,7 +2,12 @@
 import { useParams } from 'react-router-dom';
 import { AuthContext } from '../App';
 import {
-  AlertTriangle, CheckCircle2, Download, Wand2, RefreshCw, Activity
+  AlertTriangle,
+  CheckCircle2,
+  Download,
+  Wand2,
+  RefreshCw,
+  Activity
 } from 'lucide-react';
 import LoadingState from '../components/LoadingState';
 
@@ -29,9 +34,8 @@ const OPERATION_GROUPS = {
       'forward_fill',
       'backward_fill',
       'drop_rows'
-    ],
+    ]
   },
-
   text_cleaning: {
     label: 'Text Cleaning',
     methods: [
@@ -42,9 +46,8 @@ const OPERATION_GROUPS = {
       'title_case',
       'find_replace',
       'remove_special_chars'
-    ],
+    ]
   },
-
   categorical: {
     label: 'Categorical',
     methods: [
@@ -52,9 +55,8 @@ const OPERATION_GROUPS = {
       'replace_category',
       'merge_categories',
       'group_rare'
-    ],
+    ]
   },
-
   numeric: {
     label: 'Numeric',
     methods: [
@@ -63,9 +65,8 @@ const OPERATION_GROUPS = {
       'remove_currency',
       'round',
       'absolute_value'
-    ],
+    ]
   },
-
   outliers: {
     label: 'Outliers',
     methods: [
@@ -74,9 +75,8 @@ const OPERATION_GROUPS = {
       'remove_outliers',
       'cap_outliers',
       'replace_median'
-    ],
+    ]
   },
-
   datetime: {
     label: 'Date & Time',
     methods: [
@@ -86,17 +86,15 @@ const OPERATION_GROUPS = {
       'extract_day',
       'extract_quarter',
       'extract_weekday'
-    ],
+    ]
   },
-
   duplicates: {
     label: 'Duplicates',
     methods: [
       'remove_duplicates_keep_first',
       'remove_duplicates_keep_last'
-    ],
+    ]
   },
-
   data_type: {
     label: 'Data Type',
     methods: [
@@ -105,8 +103,8 @@ const OPERATION_GROUPS = {
       'text_to_date',
       'int_to_float',
       'float_to_int'
-    ],
-  },
+    ]
+  }
 };
 
 const COLUMN_GROUP_KEYS = {
@@ -117,7 +115,7 @@ const COLUMN_GROUP_KEYS = {
   identifier: ['missing_values', 'text_cleaning', 'duplicates'],
   boolean: ['missing_values', 'data_type'],
   ordinal: ['missing_values', 'categorical', 'data_type'],
-  binary: ['missing_values', 'categorical'],
+  binary: ['missing_values', 'categorical']
 };
 
 const OPERATION_LABELS = {
@@ -168,7 +166,7 @@ const OPERATION_LABELS = {
   numeric_to_text: 'Numeric to Text',
   text_to_date: 'Text to Date',
   int_to_float: 'Integer to Float',
-  float_to_int: 'Float to Integer',
+  float_to_int: 'Float to Integer'
 };
 
 const TYPE_METHOD_MAP = {
@@ -317,33 +315,26 @@ const TYPE_METHOD_MAP = {
     'replace_category',
     'merge_categories',
     'group_rare'
-  ],
+  ]
 };
 
 const TYPE_COLORS = {
   numeric:
     'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300',
-
   categorical:
     'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300',
-
   text:
     'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300',
-
   datetime:
     'bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300',
-
   identifier:
     'bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-300',
-
   boolean:
     'bg-teal-100 text-teal-700 dark:bg-teal-900/40 dark:text-teal-300',
-
   ordinal:
     'bg-pink-100 text-pink-700 dark:bg-pink-900/40 dark:text-pink-300',
-
   binary:
-    'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300',
+    'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300'
 };
 
 const CleaningCenter = () => {
@@ -368,6 +359,7 @@ const CleaningCenter = () => {
 
   const fetchData = useCallback(async () => {
     setLoading(true);
+    setError('');
 
     try {
       const [issuesRes, logRes] = await Promise.all([
@@ -376,7 +368,6 @@ const CleaningCenter = () => {
             Authorization: `Bearer ${token}`
           }
         }),
-
         fetch(`${API_URL}/api/datasets/${id}/cleaning-log`, {
           headers: {
             Authorization: `Bearer ${token}`
@@ -386,6 +377,10 @@ const CleaningCenter = () => {
 
       if (!issuesRes.ok) {
         throw new Error(`Failed to fetch issues: ${issuesRes.status}`);
+      }
+
+      if (!logRes.ok) {
+        throw new Error(`Failed to fetch cleaning log: ${logRes.status}`);
       }
 
       const issuesData = await issuesRes.json();
@@ -508,11 +503,7 @@ const CleaningCenter = () => {
 
     const matrix = {
       missing_values: {
-        identifier: [
-          'drop_rows',
-          'custom_value'
-        ],
-
+        identifier: ['drop_rows', 'custom_value'],
         numeric: [
           'mean',
           'median',
@@ -522,7 +513,6 @@ const CleaningCenter = () => {
           'backward_fill',
           'drop_rows'
         ],
-
         categorical: [
           'mode',
           'custom_value',
@@ -530,21 +520,18 @@ const CleaningCenter = () => {
           'backward_fill',
           'drop_rows'
         ],
-
         text: [
           'custom_value',
           'forward_fill',
           'backward_fill',
           'drop_rows'
         ],
-
         datetime: [
           'forward_fill',
           'backward_fill',
           'drop_rows',
           'custom_value'
         ],
-
         boolean: [
           'mode',
           'custom_value',
@@ -552,7 +539,6 @@ const CleaningCenter = () => {
           'backward_fill',
           'drop_rows'
         ],
-
         ordinal: [
           'median',
           'mode',
@@ -561,28 +547,27 @@ const CleaningCenter = () => {
           'backward_fill',
           'drop_rows'
         ],
-
         binary: [
           'mode',
           'custom_value',
           'forward_fill',
           'backward_fill',
           'drop_rows'
-        ],
+        ]
       },
 
       duplicates: {
         default: [
           'remove_duplicates_keep_first',
           'remove_duplicates_keep_last'
-        ],
+        ]
       },
 
       duplicate_ids: {
         default: [
           'remove_duplicates_keep_first',
           'remove_duplicates_keep_last'
-        ],
+        ]
       },
 
       outliers: {
@@ -593,12 +578,11 @@ const CleaningCenter = () => {
           'cap_outliers',
           'replace_median'
         ],
-
         default: [
           'remove_outliers',
           'cap_outliers',
           'replace_median'
-        ],
+        ]
       },
 
       category_inconsistency: {
@@ -607,7 +591,7 @@ const CleaningCenter = () => {
           'replace_category',
           'merge_categories',
           'group_rare'
-        ],
+        ]
       },
 
       type_mismatch: {
@@ -618,26 +602,23 @@ const CleaningCenter = () => {
           'int_to_float',
           'float_to_int'
         ],
-
         datetime: [
           'convert_to_date',
           'text_to_date',
           'forward_fill',
           'drop_rows'
         ],
-
         text: [
           'numeric_to_text',
           'convert_to_text'
         ],
-
         default: [
           'text_to_numeric',
           'numeric_to_text',
           'text_to_date',
           'int_to_float',
           'float_to_int'
-        ],
+        ]
       },
 
       invalid_values: {
@@ -646,26 +627,23 @@ const CleaningCenter = () => {
           'drop_rows',
           'find_replace'
         ],
-
         numeric: [
           'replace_median',
           'custom_value',
           'drop_rows',
           'cap_outliers'
         ],
-
         datetime: [
           'convert_to_date',
           'drop_rows',
           'custom_value'
         ],
-
         default: [
           'custom_value',
           'drop_rows',
           'find_replace'
-        ],
-      },
+        ]
+      }
     };
 
     const byIssue = matrix[issueType];
@@ -694,15 +672,14 @@ const CleaningCenter = () => {
         datetime: 'forward_fill',
         boolean: 'mode',
         ordinal: 'median',
-        binary: 'mode',
+        binary: 'mode'
       },
-
       duplicates: 'remove_duplicates_keep_first',
       duplicate_ids: 'remove_duplicates_keep_first',
       outliers: 'cap_outliers',
       category_inconsistency: 'normalize_categories',
       type_mismatch: 'convert_to_date',
-      invalid_values: 'custom_value',
+      invalid_values: 'custom_value'
     };
 
     let preferred = preferredByIssue[issue.type];
@@ -745,6 +722,11 @@ const CleaningCenter = () => {
 
       return next;
     });
+
+    setTypePickerOpen((prev) => ({
+      ...prev,
+      [columnName]: false
+    }));
   };
 
   const handleClean = async (issue, index) => {
@@ -771,7 +753,7 @@ const CleaningCenter = () => {
 
     const operation = {
       column: issue.column,
-      method: selectedOp,
+      method: selectedOp
     };
 
     if (FILL_METHODS.includes(selectedOp)) {
@@ -898,6 +880,7 @@ const CleaningCenter = () => {
 
   const handleDownload = async () => {
     setDownloading(true);
+    setError('');
 
     try {
       const response = await fetch(
@@ -912,21 +895,14 @@ const CleaningCenter = () => {
       if (response.ok) {
         const blob = await response.blob();
 
-        const url =
-          window.URL.createObjectURL(blob);
-
-        const a =
-          document.createElement('a');
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
 
         a.href = url;
-
-        a.download =
-          `cleaned_dataset_${id}.csv`;
+        a.download = `cleaned_dataset_${id}.csv`;
 
         document.body.appendChild(a);
-
         a.click();
-
         document.body.removeChild(a);
 
         window.URL.revokeObjectURL(url);
@@ -934,6 +910,8 @@ const CleaningCenter = () => {
         setMessage(
           'Cleaned dataset downloaded successfully'
         );
+      } else {
+        setError('Failed to download cleaned dataset');
       }
     } catch (err) {
       setError(
@@ -955,26 +933,23 @@ const CleaningCenter = () => {
   const severityStyles = {
     critical:
       'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-400',
-
     high:
       'bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-400',
-
     medium:
       'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-400',
-
     low:
-      'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-400',
+      'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-400'
   };
 
   return (
-    <div className="animate-fade-in space-y-8">
+    <div className="animate-fade-in space-y-6">
 
       {/* Hero Header */}
       <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-700 via-teal-800 to-cyan-900 p-6 sm:p-8 text-white shadow-xl">
 
-        <div className="absolute top-0 right-0 w-72 h-72 bg-teal-400/20 rounded-full -translate-y-1/2 translate-x-1/3 blur-3xl"></div>
+        <div className="absolute top-0 right-0 w-72 h-72 bg-teal-400/20 rounded-full -translate-y-1/2 translate-x-1/3 blur-3xl" />
 
-        <div className="absolute bottom-0 left-0 w-48 h-48 bg-emerald-300/10 rounded-full translate-y-1/3 -translate-x-1/4 blur-2xl"></div>
+        <div className="absolute bottom-0 left-0 w-48 h-48 bg-emerald-300/10 rounded-full translate-y-1/3 -translate-x-1/4 blur-2xl" />
 
         <div className="relative z-10 flex items-start gap-4">
 
@@ -983,7 +958,6 @@ const CleaningCenter = () => {
           </div>
 
           <div>
-
             <div className="flex items-center gap-2 mb-1">
               <Activity className="w-4 h-4 text-emerald-200" />
 
@@ -999,7 +973,6 @@ const CleaningCenter = () => {
             <p className="mt-1.5 text-teal-100 text-sm max-w-lg">
               Fix data quality issues with smart, semantic-aware methods
             </p>
-
           </div>
         </div>
       </div>
@@ -1007,67 +980,55 @@ const CleaningCenter = () => {
       {/* Success Message */}
       {message && (
         <div className="bg-emerald-50 dark:bg-emerald-900/30 border border-emerald-200 dark:border-emerald-700 text-emerald-700 dark:text-emerald-300 px-4 py-3 rounded-xl flex items-center gap-2 animate-slide-down">
-
           <CheckCircle2 className="w-5 h-5 flex-shrink-0" />
-
           {message}
-
         </div>
       )}
 
       {/* Error Message */}
       {error && (
         <div className="bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-700 text-red-700 dark:text-red-300 px-4 py-3 rounded-xl flex items-center gap-2 animate-slide-down">
-
           <AlertTriangle className="w-5 h-5 flex-shrink-0" />
-
           {error}
-
         </div>
       )}
 
       {/* Cleaning Log */}
       {cleaningLog.length > 0 && (
-        <div className="bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20 border border-emerald-200 dark:border-emerald-800 rounded-2xl p-6 animate-slide-up">
+        <div className="bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20 border border-emerald-200 dark:border-emerald-800 rounded-2xl p-5 animate-slide-up">
 
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
 
             <div className="flex items-start gap-3">
 
-              <div className="w-11 h-11 rounded-xl bg-emerald-500 flex items-center justify-center flex-shrink-0 shadow-md shadow-emerald-500/30">
-                <CheckCircle2 className="w-6 h-6 text-white" />
+              <div className="w-10 h-10 rounded-xl bg-emerald-500 flex items-center justify-center flex-shrink-0 shadow-md shadow-emerald-500/30">
+                <CheckCircle2 className="w-5 h-5 text-white" />
               </div>
 
               <div>
-
-                <h2 className="text-lg font-semibold text-emerald-800 dark:text-emerald-200">
+                <h2 className="text-base font-semibold text-emerald-800 dark:text-emerald-200">
                   Data Cleaning Complete
                 </h2>
 
                 <p className="text-sm text-emerald-600 dark:text-emerald-400 mt-0.5">
                   {cleaningLog.length} operation(s) applied. Download your cleaned dataset now.
                 </p>
-
               </div>
-
             </div>
 
             <button
               onClick={handleDownload}
               disabled={downloading}
-              className="btn-press inline-flex items-center gap-2 px-5 py-2.5 bg-emerald-600 text-white rounded-xl font-medium hover:bg-emerald-700 disabled:opacity-50 shadow-lg shadow-emerald-500/25 transition-all"
+              className="btn-press inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-emerald-600 text-white rounded-xl font-medium hover:bg-emerald-700 disabled:opacity-50 shadow-lg shadow-emerald-500/25 transition-all"
             >
-
               <Download className="w-4 h-4" />
 
               {downloading
                 ? 'Downloading...'
                 : 'Download Cleaned File'}
-
             </button>
 
           </div>
-
         </div>
       )}
 
@@ -1095,7 +1056,7 @@ const CleaningCenter = () => {
                 'empty-rows'
               )
             }
-            className="px-3 py-2 text-sm rounded-xl border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700"
+            className="px-3.5 py-2 text-sm rounded-xl border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50"
           >
             Remove Empty Rows
           </button>
@@ -1111,7 +1072,7 @@ const CleaningCenter = () => {
                 'error-rows'
               )
             }
-            className="px-3 py-2 text-sm rounded-xl border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700"
+            className="px-3.5 py-2 text-sm rounded-xl border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50"
           >
             Remove Error Rows
           </button>
@@ -1122,10 +1083,10 @@ const CleaningCenter = () => {
       {/* Data Quality Issues */}
       <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden">
 
-        <div className="px-6 py-5 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
+        {/* Section Header */}
+        <div className="px-5 sm:px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
 
           <div>
-
             <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
               Data Quality Issues
             </h2>
@@ -1133,7 +1094,6 @@ const CleaningCenter = () => {
             <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
               {issues.length} issue{issues.length !== 1 ? 's' : ''} remaining
             </p>
-
           </div>
 
           <button
@@ -1142,23 +1102,19 @@ const CleaningCenter = () => {
             }
             className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm text-gray-500 hover:text-gray-800 dark:hover:text-gray-200 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
           >
-
             <RefreshCw className="w-4 h-4" />
-
             Refresh
-
           </button>
 
         </div>
 
+        {/* Empty State */}
         {issues.length === 0 ? (
 
-          <div className="py-16 text-center animate-scale-in">
+          <div className="py-14 text-center animate-scale-in">
 
             <div className="mx-auto w-16 h-16 rounded-2xl bg-emerald-50 dark:bg-emerald-900/30 flex items-center justify-center mb-4">
-
               <CheckCircle2 className="w-8 h-8 text-emerald-500" />
-
             </div>
 
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-1">
@@ -1194,7 +1150,6 @@ const CleaningCenter = () => {
                 extraParams[issueKey] || {};
 
               return (
-
                 <div
                   key={issueKey}
                   className="stagger-item p-5 sm:p-6 hover:bg-gray-50/80 dark:hover:bg-gray-700/20 transition-colors"
@@ -1203,28 +1158,24 @@ const CleaningCenter = () => {
                   }}
                 >
 
-                  <div className="flex flex-col lg:flex-row lg:items-start gap-4">
+                  <div className="flex flex-col lg:flex-row lg:items-start gap-5">
 
+                    {/* Issue Information */}
                     <div className="flex-1 min-w-0">
 
+                      {/* Issue Title */}
                       <div className="flex flex-wrap items-center gap-2 mb-2">
 
                         <span
-                          className={`px-2.5 py-1 rounded-full text-xs font-semibold ${severityStyles[issue.severity] ||
-                            severityStyles.low
-                            }`}
+                          className={`px-2.5 py-1 rounded-full text-[11px] font-bold ${severityStyles[issue.severity] || severityStyles.low}`}
                         >
-                          {issue.severity?.toUpperCase() ||
-                            'UNKNOWN'}
+                          {issue.severity?.toUpperCase() || 'UNKNOWN'}
                         </span>
 
                         <span className="font-semibold text-gray-900 dark:text-white">
                           {issue.type
                             ?.replace(/_/g, ' ')
-                            .replace(
-                              /\b\w/g,
-                              (l) => l.toUpperCase()
-                            )}
+                            .replace(/\b\w/g, (l) => l.toUpperCase())}
                         </span>
 
                         <span className="text-sm text-gray-500 dark:text-gray-400">
@@ -1236,28 +1187,23 @@ const CleaningCenter = () => {
 
                       </div>
 
+                      {/* Semantic Type */}
                       <div className="flex flex-wrap items-center gap-2 mb-3">
 
                         <span
-                          className={`px-2.5 py-1 rounded-full text-xs font-semibold tracking-wide ${TYPE_COLORS[colType] ||
-                            TYPE_COLORS.text
-                            }`}
+                          className={`px-2.5 py-1 rounded-full text-[11px] font-bold tracking-wide ${TYPE_COLORS[colType] || TYPE_COLORS.text}`}
                         >
                           {colType.toUpperCase()}
                         </span>
 
                         {userOverrides[issue.column] ? (
-
                           <span className="text-[11px] font-medium text-gray-500 dark:text-gray-400">
                             Manual
                           </span>
-
                         ) : (
-
                           <span className="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
                             AI Detected
                           </span>
-
                         )}
 
                         <button
@@ -1265,8 +1211,7 @@ const CleaningCenter = () => {
                           onClick={() =>
                             setTypePickerOpen((prev) => ({
                               ...prev,
-                              [issue.column]:
-                                !prev[issue.column]
+                              [issue.column]: !prev[issue.column]
                             }))
                           }
                           className="text-[11px] font-medium text-gray-500 hover:text-emerald-700 dark:text-gray-400 dark:hover:text-emerald-300 underline-offset-2 hover:underline"
@@ -1276,8 +1221,8 @@ const CleaningCenter = () => {
 
                       </div>
 
+                      {/* Type Picker */}
                       {typePickerOpen[issue.column] && (
-
                         <select
                           value={colType}
                           onChange={(e) =>
@@ -1288,129 +1233,169 @@ const CleaningCenter = () => {
                           }
                           className="mb-3 text-xs px-2.5 py-1.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300 focus:ring-2 focus:ring-emerald-500/40"
                         >
-
-                          <option value="numeric">
-                            Numeric
-                          </option>
-
-                          <option value="categorical">
-                            Categorical
-                          </option>
-
-                          <option value="text">
-                            Text
-                          </option>
-
-                          <option value="datetime">
-                            Datetime
-                          </option>
-
-                          <option value="identifier">
-                            Identifier
-                          </option>
-
-                          <option value="boolean">
-                            Boolean
-                          </option>
-
-                          <option value="ordinal">
-                            Ordinal
-                          </option>
-
-                          <option value="binary">
-                            Binary
-                          </option>
-
+                          <option value="numeric">Numeric</option>
+                          <option value="categorical">Categorical</option>
+                          <option value="text">Text</option>
+                          <option value="datetime">Datetime</option>
+                          <option value="identifier">Identifier</option>
+                          <option value="boolean">Boolean</option>
+                          <option value="ordinal">Ordinal</option>
+                          <option value="binary">Binary</option>
                         </select>
-
                       )}
 
-                      <p className="text-gray-700 dark:text-gray-300 text-sm leading-relaxed">
+                      {/* Description */}
+                      <p className="text-gray-700 dark:text-gray-300 text-sm leading-relaxed max-w-4xl line-clamp-2">
                         {issue.issue}
                       </p>
 
-                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1.5">
-                        {issue.affected_rows} rows affected (
-                        {issue.percentage_affected}%)
-                      </p>
+                      {/* Affected Rows */}
+                      <div className="flex flex-wrap items-center gap-2 mt-2.5">
 
+                        <span className="text-xs text-gray-500 dark:text-gray-400">
+                          {issue.affected_rows} rows affected
+                        </span>
+
+                        <span className="text-gray-300 dark:text-gray-600">
+                          •
+                        </span>
+
+                        <span className="text-xs font-medium text-gray-600 dark:text-gray-300">
+                          {issue.percentage_affected}%
+                        </span>
+
+                      </div>
+
+                      {/* Extra Information */}
+                      {(issue.missing_count ||
+                        issue.unique_count ||
+                        issue.unique ||
+                        issue.cardinality_percentage) && (
+
+                        <div className="flex flex-wrap gap-2 mt-2.5">
+
+                          {issue.missing_count && (
+                            <span className="px-2.5 py-1 rounded-full text-[11px] font-medium bg-yellow-50 text-yellow-700 border border-yellow-200 dark:bg-yellow-900/20 dark:text-yellow-300 dark:border-yellow-800">
+                              Missing: {issue.missing_count}
+                            </span>
+                          )}
+
+                          {issue.unique_count && (
+                            <span className="px-2.5 py-1 rounded-full text-[11px] font-medium bg-blue-50 text-blue-700 border border-blue-200 dark:bg-blue-900/20 dark:text-blue-300 dark:border-blue-800">
+                              Unique: {issue.unique_count}
+                            </span>
+                          )}
+
+                        </div>
+                      )}
+
+                      {/* Cleaning Controls */}
                       {issue.type !== 'high_cardinality' && (
 
-                        <div className="mt-4">
+                        <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700">
 
-                          <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 uppercase tracking-wide">
-                            Cleaning Method
-                          </label>
+                          <div className="flex flex-col sm:flex-row sm:items-end gap-3">
 
-                          <select
-                            value={selectedOp}
-                            onChange={(e) => {
-                              setSelectedOperations(
-                                (prev) => ({
-                                  ...prev,
-                                  [issueKey]:
-                                    e.target.value
-                                })
-                              );
-                            }}
-                            className="w-full sm:w-72 px-3.5 py-2.5 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500 transition-all"
-                            disabled={cleaning}
-                          >
+                            {/* Method */}
+                            <div className="flex-1 max-w-md">
 
-                            {(
-                              COLUMN_GROUP_KEYS[colType] ||
-                              ['missing_values']
-                            ).map((groupKey) => {
+                              <label className="block text-[11px] font-bold text-gray-500 dark:text-gray-400 mb-1.5 uppercase tracking-wide">
+                                Cleaning Method
+                              </label>
 
-                              const group =
-                                OPERATION_GROUPS[groupKey];
+                              <select
+                                value={selectedOp}
+                                onChange={(e) => {
+                                  setSelectedOperations(
+                                    (prev) => ({
+                                      ...prev,
+                                      [issueKey]:
+                                        e.target.value
+                                    })
+                                  );
+                                }}
+                                className="w-full px-3.5 py-2.5 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500 transition-all"
+                                disabled={cleaning}
+                              >
 
-                              if (!group) {
-                                return null;
+                                {(
+                                  COLUMN_GROUP_KEYS[colType] ||
+                                  ['missing_values']
+                                ).map((groupKey) => {
+
+                                  const group =
+                                    OPERATION_GROUPS[groupKey];
+
+                                  if (!group) {
+                                    return null;
+                                  }
+
+                                  const availableMethods =
+                                    group.methods.filter(
+                                      (m) =>
+                                        allowedMethods.includes(m)
+                                    );
+
+                                  if (
+                                    availableMethods.length === 0
+                                  ) {
+                                    return null;
+                                  }
+
+                                  return (
+                                    <optgroup
+                                      key={groupKey}
+                                      label={group.label}
+                                    >
+                                      {availableMethods.map(
+                                        (method) => (
+                                          <option
+                                            key={method}
+                                            value={method}
+                                          >
+                                            {OPERATION_LABELS[method] || method}
+                                          </option>
+                                        )
+                                      )}
+                                    </optgroup>
+                                  );
+                                })}
+
+                              </select>
+
+                            </div>
+
+                            {/* Fix Button */}
+                            <button
+                              onClick={() =>
+                                handleClean(issue, index)
                               }
+                              disabled={cleaning}
+                              className={`btn-press flex-shrink-0 inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold whitespace-nowrap transition-all ${
+                                cleaningIssueId === index
+                                  ? 'bg-gray-400 text-white cursor-not-allowed'
+                                  : 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-md shadow-emerald-500/20 hover:shadow-lg hover:scale-[1.01]'
+                              }`}
+                            >
 
-                              const availableMethods =
-                                group.methods.filter(
-                                  (m) =>
-                                    allowedMethods.includes(m)
-                                );
+                              {cleaningIssueId === index ? (
+                                <>
+                                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                                  Fixing...
+                                </>
+                              ) : (
+                                <>
+                                  <Wand2 className="w-4 h-4" />
+                                  Fix Issue
+                                </>
+                              )}
 
-                              if (
-                                availableMethods.length === 0
-                              ) {
-                                return null;
-                              }
+                            </button>
 
-                              return (
+                          </div>
 
-                                <optgroup
-                                  key={groupKey}
-                                  label={group.label}
-                                >
-
-                                  {availableMethods.map(
-                                    (method) => (
-
-                                      <option
-                                        key={method}
-                                        value={method}
-                                      >
-                                        {OPERATION_LABELS[method] ||
-                                          method}
-                                      </option>
-
-                                    )
-                                  )}
-
-                                </optgroup>
-
-                              );
-                            })}
-
-                          </select>
-
+                          {/* Custom Value */}
                           {selectedOp === 'custom_value' && (
-
                             <div className="mt-3">
 
                               <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
@@ -1420,8 +1405,7 @@ const CleaningCenter = () => {
                               <input
                                 type="text"
                                 value={
-                                  customValues[issueKey] ||
-                                  ''
+                                  customValues[issueKey] || ''
                                 }
                                 onChange={(e) =>
                                   setCustomValues(
@@ -1433,22 +1417,19 @@ const CleaningCenter = () => {
                                   )
                                 }
                                 placeholder="Enter value to fill missing data"
-                                className="w-full sm:w-72 px-3.5 py-2.5 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-emerald-500/40"
+                                className="w-full sm:w-96 px-3.5 py-2.5 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-emerald-500/40"
                               />
 
                             </div>
-
                           )}
 
+                          {/* Find Replace */}
                           {selectedOp === 'find_replace' && (
-
-                            <div className="mt-3 space-y-2">
+                            <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-2 max-w-2xl">
 
                               <input
                                 type="text"
-                                value={
-                                  extra.find || ''
-                                }
+                                value={extra.find || ''}
                                 onChange={(e) =>
                                   updateExtra(
                                     issueKey,
@@ -1457,14 +1438,12 @@ const CleaningCenter = () => {
                                   )
                                 }
                                 placeholder="Find text"
-                                className="w-full sm:w-72 px-3.5 py-2.5 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
+                                className="w-full px-3.5 py-2.5 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
                               />
 
                               <input
                                 type="text"
-                                value={
-                                  extra.replace || ''
-                                }
+                                value={extra.replace || ''}
                                 onChange={(e) =>
                                   updateExtra(
                                     issueKey,
@@ -1473,22 +1452,19 @@ const CleaningCenter = () => {
                                   )
                                 }
                                 placeholder="Replace with"
-                                className="w-full sm:w-72 px-3.5 py-2.5 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
+                                className="w-full px-3.5 py-2.5 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
                               />
 
                             </div>
-
                           )}
 
+                          {/* Replace Category */}
                           {selectedOp === 'replace_category' && (
-
-                            <div className="mt-3 space-y-2">
+                            <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-2 max-w-2xl">
 
                               <input
                                 type="text"
-                                value={
-                                  extra.old_value || ''
-                                }
+                                value={extra.old_value || ''}
                                 onChange={(e) =>
                                   updateExtra(
                                     issueKey,
@@ -1497,14 +1473,12 @@ const CleaningCenter = () => {
                                   )
                                 }
                                 placeholder="Old category"
-                                className="w-full sm:w-72 px-3.5 py-2.5 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
+                                className="w-full px-3.5 py-2.5 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
                               />
 
                               <input
                                 type="text"
-                                value={
-                                  extra.new_value || ''
-                                }
+                                value={extra.new_value || ''}
                                 onChange={(e) =>
                                   updateExtra(
                                     issueKey,
@@ -1513,16 +1487,15 @@ const CleaningCenter = () => {
                                   )
                                 }
                                 placeholder="New category"
-                                className="w-full sm:w-72 px-3.5 py-2.5 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
+                                className="w-full px-3.5 py-2.5 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
                               />
 
                             </div>
-
                           )}
 
+                          {/* Merge Categories */}
                           {selectedOp === 'merge_categories' && (
-
-                            <div className="mt-3 space-y-2">
+                            <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-2 max-w-2xl">
 
                               <input
                                 type="text"
@@ -1539,14 +1512,12 @@ const CleaningCenter = () => {
                                   )
                                 }
                                 placeholder="Categories to merge, comma-separated"
-                                className="w-full sm:w-72 px-3.5 py-2.5 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
+                                className="w-full px-3.5 py-2.5 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
                               />
 
                               <input
                                 type="text"
-                                value={
-                                  extra.new_value || ''
-                                }
+                                value={extra.new_value || ''}
                                 onChange={(e) =>
                                   updateExtra(
                                     issueKey,
@@ -1555,16 +1526,15 @@ const CleaningCenter = () => {
                                   )
                                 }
                                 placeholder="New category name"
-                                className="w-full sm:w-72 px-3.5 py-2.5 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
+                                className="w-full px-3.5 py-2.5 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
                               />
 
                             </div>
-
                           )}
 
+                          {/* Group Rare */}
                           {selectedOp === 'group_rare' && (
-
-                            <div className="mt-3">
+                            <div className="mt-3 max-w-sm">
 
                               <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
                                 Min count (below this becomes Other)
@@ -1573,9 +1543,7 @@ const CleaningCenter = () => {
                               <input
                                 type="number"
                                 min="1"
-                                value={
-                                  extra.threshold || 5
-                                }
+                                value={extra.threshold || 5}
                                 onChange={(e) =>
                                   updateExtra(
                                     issueKey,
@@ -1583,98 +1551,49 @@ const CleaningCenter = () => {
                                     e.target.value
                                   )
                                 }
-                                className="w-full sm:w-72 px-3.5 py-2.5 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
+                                className="w-full px-3.5 py-2.5 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
                               />
 
                             </div>
-
                           )}
 
                         </div>
-
                       )}
 
+                      {/* High Cardinality */}
                       {issue.type === 'high_cardinality' && (
 
                         <div className="mt-4 bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4 border border-gray-100 dark:border-gray-600">
 
-                          <p className="text-sm text-gray-600 dark:text-gray-300">
+                          <div className="flex flex-wrap gap-2 mb-2">
 
-                            Unique Values:{' '}
-                            <strong>
-                              {issue.unique_count ||
-                                issue.unique ||
-                                'N/A'}
-                            </strong>
+                            <span className="px-2.5 py-1 rounded-full text-[11px] font-medium bg-blue-50 text-blue-700 border border-blue-200 dark:bg-blue-900/20 dark:text-blue-300 dark:border-blue-800">
+                              Unique: {issue.unique_count || issue.unique || 'N/A'}
+                            </span>
 
-                            <br />
+                            <span className="px-2.5 py-1 rounded-full text-[11px] font-medium bg-orange-50 text-orange-700 border border-orange-200 dark:bg-orange-900/20 dark:text-orange-300 dark:border-orange-800">
+                              Cardinality: {issue.cardinality_percentage || issue.percentage_affected || 'N/A'}%
+                            </span>
 
-                            Cardinality:{' '}
-                            <strong>
-                              {issue.cardinality_percentage ||
-                                issue.percentage_affected ||
-                                'N/A'}
-                              %
-                            </strong>
+                          </div>
 
-                          </p>
-
-                          <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+                          <p className="text-xs text-gray-500 dark:text-gray-400">
                             High cardinality is informational and does not require a cleaning operation.
                           </p>
 
                         </div>
-
                       )}
 
                     </div>
-
-                    {issue.type !== 'high_cardinality' && (
-
-                      <button
-                        onClick={() =>
-                          handleClean(issue, index)
-                        }
-                        disabled={cleaning}
-                        className={`btn-press flex-shrink-0 px-5 py-2.5 rounded-xl text-sm font-semibold whitespace-nowrap transition-all ${cleaningIssueId === index
-                            ? 'bg-gray-400 text-white cursor-not-allowed'
-                            : 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-lg shadow-emerald-500/25 hover:shadow-xl hover:scale-[1.02]'
-                          }`}
-                      >
-
-                        {cleaningIssueId === index ? (
-
-                          <span className="flex items-center gap-2">
-
-                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-
-                            Fixing...
-
-                          </span>
-
-                        ) : (
-
-                          'Fix Issue'
-
-                        )}
-
-                      </button>
-
-                    )}
-
                   </div>
-
                 </div>
-
               );
             })}
 
           </div>
-
         )}
 
       </div>
-
     </div>
   );
 };
