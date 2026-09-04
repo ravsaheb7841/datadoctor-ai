@@ -1,0 +1,46 @@
+@'
+# Environment
+.env
+.env.local
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+venv/
+env/
+*.egg-info/
+
+# Node
+node_modules/
+build/
+dist/
+.next/
+
+# Uploads and reports
+uploads/*
+backend/uploads/
+backend/uploads/*
+reports/*
+backend/reports/
+backend/reports/*
+!uploads/.gitkeep
+!reports/.gitkeep
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# MongoDB
+data/db/
+
+# Logs
+*.log
+'@ > .gitignore
