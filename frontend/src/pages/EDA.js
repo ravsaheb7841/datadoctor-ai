@@ -2,13 +2,12 @@ import React, { useState, useEffect, useContext, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import { AuthContext } from '../App';
 import {
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-  PieChart, Pie, Cell, Legend
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer
 } from 'recharts';
 import {
   Database, TrendingUp, AlertTriangle, Key, Calendar,
   ListFilter, RefreshCw, Activity, ChevronDown, ChevronUp,
-  Sparkles, ArrowRight, Zap, Eye, EyeOff, Copy, CheckCircle2
+  Sparkles, Copy, CheckCircle2
 } from 'lucide-react';
 import LoadingState from '../components/LoadingState';
 
@@ -265,15 +264,17 @@ const EDA = () => {
                 );
               }
               const chartData = num.histogram?.bins?.slice(0, -1).map((bin, i) => ({ range: `${Math.round(bin)}`, count: num.histogram.counts[i] })) || [];
+              const statsText = `${num.column}: mean=${num.stats?.mean?.toFixed(2)}, median=${num.stats?.median?.toFixed(2)}, std=${num.stats?.std?.toFixed(2)}`;
               return (
                 <div key={index} className="rounded-xl border border-gray-200 dark:border-gray-700 p-5 hover:shadow-md transition-shadow">
                   <div className="flex items-center justify-between mb-4">
                     <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-200">{num.column}</h3>
                     <button
-                      onClick={() => copyStats(`${num.column}: mean=${num.stats?.mean?.toFixed(2)}, median=${num.stats?.median?.toFixed(2)}, std=${num.stats?.std?.toFixed(2)}`)}
+                      onClick={() => copyStats(statsText)}
                       className="p-1 text-gray-400 hover:text-blue-500 transition-colors"
+                      title="Copy statistics"
                     >
-                      {copiedStats === `${num.column}: mean=${num.stats?.mean?.toFixed(2)}` ? <CheckCircle2 className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4" />}
+                      {copiedStats === statsText ? <CheckCircle2 className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4" />}
                     </button>
                   </div>
                   <ResponsiveContainer width="100%" height={200}>
