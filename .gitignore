@@ -1,3 +1,4 @@
+@'
 # Environment
 .env
 .env.local
@@ -18,10 +19,14 @@ dist/
 .next/
 
 # Uploads and reports
-uploads/
+uploads/*
 backend/uploads/
-reports/
+backend/uploads/*
+reports/*
 backend/reports/
+backend/reports/*
+!uploads/.gitkeep
+!reports/.gitkeep
 
 # IDE
 .vscode/
@@ -38,3 +43,4 @@ data/db/
 
 # Logs
 *.log
+'@ > .gitignore
