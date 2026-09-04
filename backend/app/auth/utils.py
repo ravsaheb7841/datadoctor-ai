@@ -1,4 +1,3 @@
-# Update auth/utils.py to use bcrypt directly
 import bcrypt
 from jose import JWTError, jwt
 from datetime import datetime, timedelta

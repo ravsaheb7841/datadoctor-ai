@@ -1,4 +1,3 @@
-# backend/app/utils/database.py
 import motor.motor_asyncio
 import os
 from dotenv import load_dotenv

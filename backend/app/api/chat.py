@@ -1,4 +1,3 @@
-# backend/app/api/chat.py
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel
 from app.auth.utils import get_current_user

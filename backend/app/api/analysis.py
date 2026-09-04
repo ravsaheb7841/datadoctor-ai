@@ -13,9 +13,7 @@ from app.services.column_type_service import column_type_service
 router = APIRouter()
 
 
-# ============================================================
 # DATASET PROFILE
-# ============================================================
 
 @router.get("/{dataset_id}/profile")
 async def get_dataset_profile(
@@ -54,9 +52,7 @@ async def get_dataset_profile(
     return profile
 
 
-# ============================================================
 # DATASET HEALTH
-# ============================================================
 
 @router.get("/{dataset_id}/health")
 async def get_dataset_health(
@@ -79,9 +75,7 @@ async def get_dataset_health(
     return dataset.get("health_details", {})
 
 
-# ============================================================
 # DATASET ISSUES
-# ============================================================
 
 @router.get("/{dataset_id}/issues")
 async def get_dataset_issues(
@@ -121,9 +115,7 @@ async def get_dataset_issues(
     }
 
 
-# ============================================================
 # COLUMN TYPES
-# ============================================================
 
 @router.get("/{dataset_id}/column-types")
 async def get_column_types(
@@ -175,9 +167,7 @@ async def get_column_types(
         )
 
 
-# ============================================================
 # CLEANING SUGGESTIONS
-# ============================================================
 
 @router.get("/{dataset_id}/suggestions")
 async def get_cleaning_suggestions(
@@ -212,9 +202,7 @@ async def get_cleaning_suggestions(
         )
 
 
-# ============================================================
 # AI DIAGNOSIS
-# ============================================================
 
 @router.post("/{dataset_id}/diagnose")
 async def diagnose_dataset(
@@ -269,9 +257,7 @@ async def diagnose_dataset(
     return diagnosis
 
 
-# ============================================================
 # EXPLORATORY DATA ANALYSIS
-# ============================================================
 
 @router.get("/{dataset_id}/eda")
 async def get_dataset_eda(

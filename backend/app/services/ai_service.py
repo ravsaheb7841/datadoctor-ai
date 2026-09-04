@@ -1,4 +1,3 @@
-# backend/app/services/ai_service.py
 import os
 import json
 import httpx
