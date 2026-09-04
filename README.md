@@ -207,9 +207,6 @@ Database        →  MongoDB
 ## 👨‍💻 Author
 
 **Ravsaheb Bansode**
-B.Tech – Information Technology
-
-Interested in Data Analytics, Data Science, Machine Learning, Business Intelligence, and AI-powered applications.
 
 - LinkedIn: [ravsaheb-bansode](https://www.linkedin.com/in/ravsaheb-bansode/)
 - GitHub: [@ravsaheb7841](https://github.com/ravsaheb7841/)
