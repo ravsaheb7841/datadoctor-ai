@@ -274,7 +274,7 @@ const Landing = () => {
                   </svg>
                 </a>
 
-                <a href="mailto:hello@datadoctor.ai" className="w-10 h-10 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 flex items-center justify-center text-gray-500 dark:text-gray-400 hover:text-blue-600 hover:border-blue-200 hover:shadow-sm transition-all" aria-label="Email">
+                <a href="mailto:bansoderav@gmail.com" className="w-10 h-10 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 flex items-center justify-center text-gray-500 dark:text-gray-400 hover:text-blue-600 hover:border-blue-200 hover:shadow-sm transition-all" aria-label="Email">
                   <Mail className="w-5 h-5" />
                 </a>
               </div>
