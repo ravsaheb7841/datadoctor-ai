@@ -291,26 +291,55 @@ async def get_dataset_eda(
             detail="Dataset not found"
         )
 
-    try:
-        # Always generate EDA using the current dataset
-        # and current semantic-type logic.
-        eda = await generate_eda(
-            dataset_id,
-            db
+    print(f"[EDA DEBUG] Generating EDA for: {dataset_id}")
+
+    import os
+
+    file_path = f"uploads/{dataset_id}.pkl"
+
+    if not os.path.exists(file_path):
+        print(f"[EDA DEBUG] File not found: {file_path}")
+        raise HTTPException(
+            status_code=404,
+            detail="Dataset file not found on server"
         )
+
+    print(f"[EDA DEBUG] File found: {file_path}")
+
+    try:
+        eda = await generate_eda(dataset_id, db)
+
+        if not eda:
+            raise HTTPException(
+                status_code=404,
+                detail="No EDA data generated"
+            )
+
+        print("[EDA DEBUG] EDA generated successfully")
 
         return eda
 
-    except Exception as e:
+    except FileNotFoundError as e:
+        print(f"[EDA DEBUG] File not found: {e}")
+
         raise HTTPException(
-            status_code=500,
-            detail=f"Failed to generate EDA: {str(e)}"
+            status_code=404,
+            detail="Dataset file not found"
         )
 
+    except HTTPException:
+        raise
 
-# ============================================================
-# AI INSIGHTS
-# ============================================================
+    except Exception as e:
+        print(f"[EDA DEBUG] EDA failed: {e}")
+
+        import traceback
+        traceback.print_exc()
+
+        raise HTTPException(
+            status_code=500,
+            detail=f"EDA generation failed: {str(e)}"
+        )
 
 @router.get("/{dataset_id}/insights")
 async def get_dataset_insights(
