@@ -1,12 +1,9 @@
-@'
-# Environment
+﻿# Environment
 .env
 .env.local
 .env.development.local
 .env.test.local
-frontend/.env.development.local
-frontend/.env.test.local
-frontend/.env.production.local
+.env.production.local
 
 # Python
 __pycache__/
@@ -48,4 +45,3 @@ data/db/
 
 # Logs
 *.log
-'@ > .gitignore
