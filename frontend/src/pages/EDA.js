@@ -11,7 +11,7 @@ import {
 } from 'lucide-react';
 import LoadingState from '../components/LoadingState';
 
-const API_URL = 'https://datadoctor-ai.onrender.com';
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
 
 const COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#06B6D4', '#EC4899', '#84CC16', '#F97316', '#14B8A6'];
 

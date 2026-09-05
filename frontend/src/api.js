@@ -1,11 +1,10 @@
-// frontend/src/services/api.js
-const API_BASE_URL = 'https://datadoctor-ai.onrender.com/api';
+const API_BASE_URL = `${process.env.REACT_APP_API_URL || 'http://localhost:8000'}/api`;
 
 export const api = {
   getToken: () => localStorage.getItem('token'),
 
   headers: () => ({
-    'Authorization': `Bearer ${api.getToken()}`,
+    Authorization: `Bearer ${api.getToken()}`,
     'Content-Type': 'application/json'
   }),
 
@@ -28,7 +27,7 @@ export const api = {
   async upload(endpoint, formData) {
     const response = await fetch(`${API_BASE_URL}${endpoint}`, {
       method: 'POST',
-      headers: { 'Authorization': `Bearer ${api.getToken()}` },
+      headers: { Authorization: `Bearer ${api.getToken()}` },
       body: formData
     });
     return response.json();

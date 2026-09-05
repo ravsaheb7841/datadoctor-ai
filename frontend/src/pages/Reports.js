@@ -8,7 +8,7 @@ import {
   Zap, TrendingUp, Database, Layers
 } from 'lucide-react';
 
-const API_URL = 'https://datadoctor-ai.onrender.com';
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
 
 const Reports = () => {
   const { id } = useParams();

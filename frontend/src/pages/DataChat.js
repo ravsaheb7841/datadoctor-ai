@@ -6,7 +6,7 @@ import {
   Copy, CheckCircle2, Trash2, RefreshCw, Clock
 } from 'lucide-react';
 
-const API_URL = 'https://datadoctor-ai.onrender.com';
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
 
 const DataChat = () => {
   const { id } = useParams();
